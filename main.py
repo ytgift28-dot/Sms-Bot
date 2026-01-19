@@ -12,7 +12,7 @@ from telebot import types
 from datetime import datetime
 
 # ==========================================
-# 🌐 WEB SERVER (Render-এর জন্য)
+# 🌐 WEB SERVER
 # ==========================================
 app = Flask('')
 @app.route('/')
@@ -25,10 +25,10 @@ def keep_alive():
     threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🔧 CONFIGURATION (সঠিক তথ্য দিন)
+# 🔧 CONFIGURATION
 # ==========================================
 API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  
-OWNER_ID = 6941003064              
+OWNER_ID = 6941003064              # Apnar ID thikmoto boshan
 OWNER_NAME = "Suptho Hpd"
 OWNER_USERNAME = "Suptho1_"
 CHANNEL_ID = "@SH_tricks"         
@@ -52,7 +52,7 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 API ENGINE (আপনার ১৩টি API - অপরিবর্তিত)
+# 🚀 API ENGINE (13 APIs - 100% Same to Same)
 # ==========================================
 
 def shopbase_api(target):
@@ -123,13 +123,13 @@ def ecourier_api(target):
 
 def attack_executor(target, amount):
     apis = [shopbase_api, apex_api, bikroy_api, banglalink_api, grameenphone_api, airtel_api, chorki_api, hoichoi_api, bioscope_api, shikho_api, bohubrihi_api, rokomari_api, ecourier_api]
-    with ThreadPoolExecutor(max_workers=35) as executor:
+    with ThreadPoolExecutor(max_workers=50) as executor:
         for _ in range(amount):
             for run_api in apis:
                 executor.submit(run_api, target)
 
 # ==========================================
-# 🤖 ADVANCED BOT UI & FEATURES
+# 🤖 BOT INTERFACE
 # ==========================================
 
 def is_joined(user_id):
@@ -147,7 +147,7 @@ def welcome(message):
         referrer = args[1] if len(args) > 1 and args[1] in db['users'] else None
         if referrer and referrer != uid:
             db['users'][referrer]['credits'] += 5
-            try: bot.send_message(referrer, f"🎉 **রেফারেল বোনাস!** আপনি ৫ ক্রেডিট পেয়েছেন।")
+            try: bot.send_message(referrer, f"🎉 Referral Bonus! You got 5 credits.")
             except: pass
         db['users'][uid] = {"credits": 5, "ref_count": 0, "total_sent": 0, "join_date": datetime.now().strftime("%Y-%m-%d")}
         save_data(db)
@@ -156,94 +156,108 @@ def welcome(message):
     markup.add("🚀 Start Bomb", "👤 My Profile")
     markup.add("👥 Refer & Earn", "💰 Redeem Credit")
     markup.add("👑 Admin Support")
-    bot.send_message(message.chat.id, f"🔥 **SUPTHO ADVANCE BOMBER** 🔥\nসব প্রিমিয়াম অপশন আনলক করা হয়েছে।", reply_markup=markup)
+    bot.send_message(message.chat.id, f"🔥 **SUPTHO ADVANCE BOMBER** 🔥", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: True)
 def handle_menu(message):
     uid = str(message.from_user.id)
+    
+    # Global Admin Command Handlers (Menu logic ignore korbe)
+    if message.text.startswith('/'):
+        return
+
     if not is_joined(message.from_user.id):
-        return bot.reply_to(message, f"❌ আগে চ্যানেলে জয়েন করুন: {CHANNEL_ID}")
+        return bot.reply_to(message, f"❌ Join Channel: {CHANNEL_ID}")
 
     if message.text == "🚀 Start Bomb":
-        msg = bot.reply_to(message, "💣 **নাম্বার দিন (১১ ডিজিট):**")
+        msg = bot.reply_to(message, "💣 Number din (11 digit):")
         bot.register_next_step_handler(msg, ask_amount)
     
     elif message.text == "👤 My Profile":
         u = db['users'].get(uid, {"credits": 0})
         cred = "Unlimited" if int(uid) == OWNER_ID else u['credits']
-        text = f"👤 **PROFILE DETAILS**\n\n🆔 ID: `{uid}`\n💰 Balance: `{cred}`\n🔥 Total Sent: `{u.get('total_sent', 0)}` SMS\n📅 Join Date: `{u.get('join_date', 'N/A')}`"
+        text = f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💰 Balance: `{cred}`\n🔥 Total SMS: `{u.get('total_sent', 0)}`"
         bot.reply_to(message, text, parse_mode='Markdown')
 
     elif message.text == "👥 Refer & Earn":
         link = f"https://t.me/{bot.get_me().username}?start={uid}"
-        bot.reply_to(message, f"🎁 **রেফার লিংক:**\n`{link}`\n\nপ্রতি রেফারে ৫ ক্রেডিট পাবেন।", parse_mode='Markdown')
+        bot.reply_to(message, f"🎁 Invite link:\n`{link}`\n\nGet 5 credits per refer.")
 
     elif message.text == "💰 Redeem Credit":
-        msg = bot.reply_to(message, "🎁 **রিডিম কোড দিন:**")
+        msg = bot.reply_to(message, "🎁 Redeem Code din:")
         bot.register_next_step_handler(msg, redeem_code)
 
     elif message.text == "👑 Admin Support":
         bot.reply_to(message, f"👑 Owner: {OWNER_NAME}\n💬 Support: {OWNER_USERNAME}")
 
-# --- Logic ---
+# --- Bombing Logic ---
 def ask_amount(message):
     target = message.text.strip()
-    if len(target) != 11: return bot.reply_to(message, "❌ ভুল নাম্বার!")
-    msg = bot.reply_to(message, f"🎯 Target: `{target}`\n🔢 **রাউন্ড পরিমাণ দিন (সর্বোচ্চ ১০):**")
+    if len(target) != 11: return bot.reply_to(message, "❌ Wrong Number!")
+    msg = bot.reply_to(message, f"🎯 Target: `{target}`\n🔢 Round amount din (No Limit):")
     bot.register_next_step_handler(msg, process_bomb, target)
 
 def process_bomb(message, target):
     uid = str(message.from_user.id)
     try:
         amount = int(message.text)
-        if amount > 10: amount = 10
         if int(uid) != OWNER_ID:
-            if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ ক্রেডিট নেই!")
+            if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ No Credits!")
             db['users'][uid]['credits'] -= 1
         
         db['users'][uid]['total_sent'] += (amount * 13)
         save_data(db)
-        bot.send_message(message.chat.id, f"🚀 **বোম্বিং শুরু হয়েছে!**")
+        bot.send_message(message.chat.id, f"🚀 **Bombing Started!**")
         threading.Thread(target=attack_executor, args=(target, amount)).start()
-    except: bot.reply_to(message, "❌ ভুল ইনপুট!")
+    except: bot.reply_to(message, "❌ Invalid Amount!")
 
 def redeem_code(message):
     code, uid = message.text.strip(), str(message.from_user.id)
     if code in db['codes']:
         db['codes'].remove(code)
         db['users'][uid]['credits'] += 10
-        save_data(db); bot.reply_to(message, "✅ সফল! ১০ ক্রেডিট যোগ হয়েছে।")
-    else: bot.reply_to(message, "❌ ভুল কোড।")
+        save_data(db); bot.reply_to(message, "✅ 10 Credits Added!")
+    else: bot.reply_to(message, "❌ Invalid Code.")
 
 # ==========================================
-# 👑 ADMIN ADVANCED COMMANDS
+# 👑 ADMIN COMMANDS (FIXED)
 # ==========================================
-@bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast'])
-def admin_panel(message):
+
+@bot.message_handler(commands=['admin'])
+def admin_cmd(message):
     if message.from_user.id != OWNER_ID: return
-    cmd = message.text.split()
-    
-    if cmd[0] == '/admin':
-        bot.reply_to(message, "👑 **Admin Options:**\n/stats - Bot Stats\n/gencodes <num> - Create Codes\n/broadcast <msg> - Global Message")
-    
-    elif cmd[0] == '/stats':
-        bot.reply_to(message, f"📊 **Stats:**\nUsers: {len(db['users'])}\nCodes: {len(db['codes'])}")
-    
-    elif cmd[0] == '/gencodes':
-        num = int(cmd[1])
+    text = "👑 **ADMIN PANEL**\n\n/stats - Bot Status\n/gencodes <num> - Gen Codes\n/broadcast <msg> - Send to all"
+    bot.reply_to(message, text)
+
+@bot.message_handler(commands=['stats'])
+def admin_stats(message):
+    if message.from_user.id != OWNER_ID: return
+    bot.reply_to(message, f"📊 Total Users: {len(db['users'])}\n🔑 Active Codes: {len(db['codes'])}")
+
+@bot.message_handler(commands=['gencodes'])
+def admin_gen(message):
+    if message.from_user.id != OWNER_ID: return
+    try:
+        num = int(message.text.split()[1])
         codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
         db['codes'].extend(codes); save_data(db)
-        bot.reply_to(message, f"✅ Codes: `{', '.join(codes)}`")
-        
-    elif cmd[0] == '/broadcast':
-        msg_text = message.text.replace("/broadcast ", "")
-        for user in db['users']:
-            try: bot.send_message(user, f"📢 **MESSAGE FROM ADMIN:**\n\n{msg_text}")
-            except: pass
-        bot.reply_to(message, "✅ Broadcast Done!")
+        bot.reply_to(message, f"✅ Codes: `{', '.join(codes)}`", parse_mode='Markdown')
+    except: bot.reply_to(message, "Usage: /gencodes 5")
+
+@bot.message_handler(commands=['broadcast'])
+def admin_bc(message):
+    if message.from_user.id != OWNER_ID: return
+    msg_text = message.text.replace("/broadcast ", "")
+    if not msg_text or msg_text == "/broadcast": return bot.reply_to(message, "Message din!")
+    
+    count = 0
+    for user in db['users']:
+        try:
+            bot.send_message(user, f"📢 **ADMIN MESSAGE:**\n\n{msg_text}")
+            count += 1
+        except: pass
+    bot.reply_to(message, f"✅ Sent to {count} users.")
 
 if __name__ == "__main__":
-    try: bot.remove_webhook()
-    except: pass
     keep_alive()
     bot.polling(non_stop=True)
