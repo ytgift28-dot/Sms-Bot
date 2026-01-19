@@ -1,7 +1,6 @@
 import telebot
 import requests
 import threading
-import time
 import os
 import json
 import random
@@ -9,14 +8,13 @@ import string
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask
 from telebot import types
-from datetime import datetime
 
 # ==========================================
 # 🌐 WEB SERVER
 # ==========================================
 app = Flask('')
 @app.route('/')
-def home(): return "Supreme Advance Bot is Online!"
+def home(): return "Supreme Bot is Online!"
 
 def run_web_server():
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
@@ -25,13 +23,13 @@ def keep_alive():
     threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🔧 CONFIGURATION
+# 🔧 CONFIGURATION (আপনার Numeric ID এখানে দিন)
 # ==========================================
 API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  
-OWNER_ID = 6941003064              # Apnar ID boshan
+OWNER_ID = 6941003064              # <--- আপনার সঠিক ID এখানে দিন
 OWNER_NAME = "Suptho Hpd"
 OWNER_USERNAME = "@Suptho1_"
-CHANNEL_ID = "@SH_tricks"          # Channel username (অবশ্যই @ থাকতে হবে)
+CHANNEL_ID = "@SH_tricks"         
 DATA_FILE = 'supreme_db.json'
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -52,7 +50,7 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 API ENGINE (100% Original Style)
+# 🚀 API ENGINE (১৩টি অরিজিনাল API)
 # ==========================================
 
 def shopbase_api(target):
@@ -115,132 +113,117 @@ def attack_executor(target, amount):
                 executor.submit(run_api, target)
 
 # ==========================================
-# 🛡️ CHANNEL JOIN CHECK
+# 👑 ADMIN COMMANDS (Fix)
 # ==========================================
+
+@bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast', 'ban', 'unban'])
+def admin_panel(message):
+    # ID চেক করার সময় int এবং str দুইটাই সাপোর্ট করবে
+    if int(message.from_user.id) != int(OWNER_ID):
+        return
+    
+    cmd = message.text.split()
+    if cmd[0] == '/admin':
+        text = "👑 **ADMIN PANEL**\n\n/stats - বটের তথ্য\n/gencodes <সংখ্যা> - কোড তৈরি\n/broadcast <মেসেজ> - ব্রডকাস্ট\n/ban <ID> - ইউজার ব্যান\n/unban <ID> - ইউজার আনব্যান"
+        bot.reply_to(message, text)
+    
+    elif cmd[0] == '/stats':
+        bot.reply_to(message, f"📊 **Stats:**\nUsers: {len(db['users'])}\nBanned: {len(db.get('banned', []))}\nCodes: {len(db.get('codes', []))}")
+    
+    elif cmd[0] == '/gencodes':
+        try:
+            num = int(cmd[1])
+            new_codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
+            db.setdefault('codes', []).extend(new_codes)
+            save_data(db)
+            bot.reply_to(message, f"✅ Generated {num} Codes:\n`{', '.join(new_codes)}`", parse_mode='Markdown')
+        except: bot.reply_to(message, "সঠিক নিয়ম: `/gencodes 5`")
+
+    elif cmd[0] == '/broadcast':
+        msg_text = message.text.replace("/broadcast ", "")
+        count = 0
+        for u in db['users']:
+            try: bot.send_message(u, f"📢 **ADMIN MESSAGE:**\n\n{msg_text}"); count += 1
+            except: pass
+        bot.reply_to(message, f"✅ {count} জনকে পাঠানো হয়েছে।")
+
+# ==========================================
+# 🤖 USER INTERFACE
+# ==========================================
+
 def is_joined(user_id):
-    if user_id == OWNER_ID: return True
+    if int(user_id) == int(OWNER_ID): return True
     try:
         member = bot.get_chat_member(CHANNEL_ID, user_id)
         return member.status in ['member', 'administrator', 'creator']
     except: return False
-
-# ==========================================
-# 🤖 BOT MENU & HANDLERS
-# ==========================================
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
     uid = str(message.from_user.id)
     args = message.text.split()
     
-    # Banned check
-    if uid in db.get('banned', []):
-        return bot.reply_to(message, "🚫 You are Banned.")
+    if uid in db.get('banned', []): return bot.reply_to(message, "🚫 Banned.")
 
-    # Data create and Refer logic
     if uid not in db['users']:
         referrer = args[1] if len(args) > 1 and args[1] in db['users'] else None
         if referrer and referrer != uid:
             db['users'][referrer]['credits'] += 5
-            try: bot.send_message(referrer, "🎉 Referral successful! You got 5 credits.")
+            try: bot.send_message(referrer, "🎉 Referral Bonus: +5 Credits!")
             except: pass
-        db['users'][uid] = {"credits": 5, "total_sent": 0}
+        db['users'][uid] = {"credits": 5}
         save_data(db)
 
-    # Main Keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add("🚀 Start Bomb", "👤 Profile")
     markup.add("👥 Refer & Earn", "💰 Redeem Credit")
     markup.add("👑 Admin Support")
-    bot.send_message(message.chat.id, "🔥 **SUPTHO ADVANCE BOMBER** 🔥", reply_markup=markup)
+    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER** 🔥", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: True)
-def menu_handler(message):
+def menu_logic(message):
     uid = str(message.from_user.id)
     if uid in db.get('banned', []): return
-
-    # Channel Check
     if not is_joined(message.from_user.id):
         btn = types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("Join Channel 📢", url=f"https://t.me/{CHANNEL_ID.replace('@','')}"))
-        return bot.reply_to(message, "❌ Age channel-e join korun, tarpor bot use korun!", reply_markup=btn)
+        return bot.reply_to(message, "❌ আগে চ্যানেলে জয়েন করুন!", reply_markup=btn)
 
     if message.text == "🚀 Start Bomb":
-        msg = bot.reply_to(message, "💣 11 digit-er number din:")
+        msg = bot.reply_to(message, "💣 নাম্বার দিন:")
         bot.register_next_step_handler(msg, ask_amount)
-    
     elif message.text == "👤 Profile":
         u = db['users'].get(uid, {})
-        cred = "Unlimited" if int(uid) == OWNER_ID else u.get('credits', 0)
+        cred = "Unlimited" if int(uid) == int(OWNER_ID) else u.get('credits', 0)
         bot.reply_to(message, f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💰 Balance: `{cred}`", parse_mode='Markdown')
-
     elif message.text == "👥 Refer & Earn":
         link = f"https://t.me/{bot.get_me().username}?start={uid}"
-        bot.reply_to(message, f"🎁 Invite link:\n`{link}`\n\nPer refer 5 credits paben.")
-
+        bot.reply_to(message, f"🎁 Invite link:\n`{link}`\n\nপ্রতি রেফারে ৫ ক্রেডিট।")
     elif message.text == "💰 Redeem Credit":
-        msg = bot.reply_to(message, "🎁 Redeem code din:")
+        msg = bot.reply_to(message, "🎁 Redeem কোড দিন:")
         bot.register_next_step_handler(msg, process_redeem)
 
-    elif message.text == "👑 Admin Support":
-        bot.reply_to(message, f"👑 Owner: {OWNER_NAME}\n💬 Support: {OWNER_USERNAME}")
-
-# --- Logic Actions ---
 def ask_amount(message):
     target = message.text
-    if len(target) != 11: return bot.reply_to(message, "❌ Invalid number!")
-    msg = bot.reply_to(message, "🔢 Round amount din (No Limit):")
+    msg = bot.reply_to(message, "🔢 রাউন্ড (No Limit):")
     bot.register_next_step_handler(msg, process_bomb, target)
 
 def process_bomb(message, target):
     uid = str(message.from_user.id)
     try:
         amount = int(message.text)
-        if int(uid) != OWNER_ID:
-            if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ No credits!")
-            db['users'][uid]['credits'] -= 1
-            save_data(db)
-        
-        bot.reply_to(message, "🚀 Bombing started!")
+        if int(uid) != int(OWNER_ID):
+            if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ ক্রেডিট নেই!")
+            db['users'][uid]['credits'] -= 1; save_data(db)
+        bot.reply_to(message, "🚀 বোম্বিং শুরু হয়েছে!")
         threading.Thread(target=attack_executor, args=(target, amount)).start()
-    except: bot.reply_to(message, "❌ Invalid amount!")
+    except: bot.reply_to(message, "❌ ভুল পরিমাণ!")
 
 def process_redeem(message):
     code, uid = message.text.strip(), str(message.from_user.id)
     if code in db.get('codes', []):
-        db['codes'].remove(code)
-        db['users'][uid]['credits'] += 10
-        save_data(db)
-        bot.reply_to(message, "✅ Successful! 10 credits added.")
-    else: bot.reply_to(message, "❌ Invalid or used code.")
-
-# ==========================================
-# 👑 ADMIN COMMANDS (All Priority)
-# ==========================================
-
-@bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast', 'ban', 'unban'])
-def handle_admin(message):
-    if message.from_user.id != OWNER_ID: return
-    cmd = message.text.split()
-    
-    if cmd[0] == '/admin':
-        bot.reply_to(message, "👑 **ADMIN PANEL**\n/stats\n/gencodes <num>\n/broadcast <msg>\n/ban <ID>\n/unban <ID>")
-    elif cmd[0] == '/stats':
-        bot.reply_to(message, f"📊 Users: {len(db['users'])}\n🔑 Codes: {len(db['codes'])}")
-    elif cmd[0] == '/gencodes':
-        num = int(cmd[1]) if len(cmd) > 1 else 1
-        codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
-        db.setdefault('codes', []).extend(codes); save_data(db)
-        bot.reply_to(message, f"✅ Codes: `{', '.join(codes)}`")
-    elif cmd[0] == '/ban':
-        if len(cmd) > 1:
-            db.setdefault('banned', []).append(cmd[1])
-            save_data(db); bot.reply_to(message, "✅ Banned.")
-    elif cmd[0] == '/broadcast':
-        msg_text = message.text.replace("/broadcast ", "")
-        for u in db['users']:
-            try: bot.send_message(u, f"📢 **ADMIN:**\n\n{msg_text}")
-            except: pass
-        bot.reply_to(message, "✅ Done.")
+        db['codes'].remove(code); db['users'][uid]['credits'] += 10; save_data(db)
+        bot.reply_to(message, "✅ সফল! ১০ ক্রেডিট যোগ হয়েছে।")
+    else: bot.reply_to(message, "❌ ভুল কোড।")
 
 if __name__ == "__main__":
     keep_alive()
