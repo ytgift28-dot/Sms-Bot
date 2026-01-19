@@ -1,4 +1,4 @@
 pyTelegramBotAPI
-aiohttp
-flask
 requests
+flask
+gunicorn
