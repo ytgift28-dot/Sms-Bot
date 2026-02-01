@@ -14,10 +14,13 @@ from telebot import types
 # 🌐 WEB SERVER (Render Keep Alive)
 # ==========================================
 app = Flask('')
+
 @app.route('/')
-def home(): return "Supreme Bot is Online!"
+def home():
+    return "Supreme Bot is Online!"
 
 def run_web_server():
+    # Render automatically provides a PORT environment variable
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
@@ -27,15 +30,13 @@ def keep_alive():
 # ==========================================
 # 🔧 CONFIGURATION
 # ==========================================
-API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  
-OWNER_ID = 6941003064              # আপনার অ্যাডমিন আইডি
+API_TOKEN = '8577991344:AAFyp9TUo-BrzgUpO1ZRoy6fjnc41hBG4GM'  # <--- এখানে আপনার টোকেন দিন
+OWNER_ID = 6941003064              
 CHANNEL_ID = "@SH_tricks"         
 DATA_FILE = 'supreme_db.json'
 ADSTERRA_URL = "https://www.effectivegatecpm.com/wnbk2zjv?key=75442aee9e8b64a0d71c17a99228474d"
 
 bot = telebot.TeleBot(API_TOKEN)
-
-# Claim State Dictionary (Temporary Memory)
 pending_claims = {}
 
 # ==========================================
@@ -53,9 +54,8 @@ def save_data(data):
 db = load_data()
 
 # ==========================================
-# 🚀 API ENGINE (All 67 APIs)
+# 🚀 API ENGINE (All APIs Restored)
 # ==========================================
-# (API ফাংশনগুলো অপরিবর্তিত রাখা হয়েছে, শুধু কল করা হবে)
 
 def mygp_api(target):
     try: requests.get(f"https://mygp.grameenphone.com/mygpapi/v2/otp-login?msisdn={target}&lang=en&ng=0", timeout=5)
@@ -325,13 +325,13 @@ def menu_logic(message):
         bot.reply_to(message, f"👤 **PROFILE**\n\n🆔 ID: `{uid}`\n💰 Balance: `{cred}`")
 
     elif message.text == "💎 Get Free Credits":
-        pending_claims[uid] = time.time()  # Store click time
+        pending_claims[uid] = time.time()  
         
         btn = types.InlineKeyboardMarkup()
         btn.add(types.InlineKeyboardButton("🔗 Open Link & Wait 10s", url=ADSTERRA_URL))
         btn.add(types.InlineKeyboardButton("✅ Claim 5 Credits", callback_data="claim_credit"))
         
-        text = "⚠️ **নিয়মাবলী:**\n\n১. নিচের লিংকে ক্লিক করে **১০ সেকেন্ড** অপেক্ষা করুন।\n২. ফিরে এসে আরও **১০ সেকেন্ড** অপেক্ষা করুন।\n৩. মোট ২০ সেকেন্ড পর 'Claim' বাটনে চাপ দিন।\n\n❌ **নোট:** এর আগে ক্লিক করলে কাজ হবে না!"
+        text = "⚠️ **নিয়মাবলী:**\n\n১. নিচের লিংকে ক্লিক করে **১০ সেকেন্ড** অপেক্ষা করুন।\n২. ফিরে এসে আরও **১০ সেকেন্ড** অপেক্ষা করুন।\n৩. মোট ২০ সেকেন্ড পর 'Claim' বাটনে চাপ দিন।\n\n❌ **নোট:** এর আগে ক্লিক করলে কাজ হবে না!"
         bot.reply_to(message, text, reply_markup=btn)
 
     elif message.text == "👥 Refer & Earn":
@@ -344,12 +344,12 @@ def claim_reward(call):
     start_time = pending_claims.get(uid, 0)
     elapsed = time.time() - start_time
     
-    if elapsed >= 20: # 20 Seconds Check (10s ad + 10s wait)
+    if elapsed >= 20: 
         db['users'][uid]['credits'] += 5
         save_data(db)
         del pending_claims[uid]
         bot.answer_callback_query(call.id, "✅ Success! 5 Credits Added.")
-        bot.edit_message_text(f"🎉 **অভিনন্দন!**\n৫ ক্রেডিট যোগ করা হয়েছে।\nবর্তমান ব্যালেন্স: {db['users'][uid]['credits']}", call.message.chat.id, call.message.message_id)
+        bot.edit_message_text(f"🎉 **অভিনন্দন!**\n৫ ক্রেডিট যোগ করা হয়েছে।\nবর্তমান ব্যালেন্স: {db['users'][uid]['credits']}", call.message.chat.id, call.message.message_id)
     else:
         wait_more = int(20 - elapsed)
         bot.answer_callback_query(call.id, f"❌ আরও {wait_more} সেকেন্ড অপেক্ষা করুন!", show_alert=True)
@@ -372,9 +372,18 @@ def process_bomb(message, target):
         threading.Thread(target=attack_executor, args=(target, amount)).start()
     except: bot.reply_to(message, "❌ ভুল ইনপুট!")
 
+# ==========================================
+# 🚀 FINAL EXECUTION (Improved Polling)
+# ==========================================
 if __name__ == "__main__":
+    # Web server keeps Render alive
     keep_alive()
-    try:
-        bot.remove_webhook()
-    except: pass
-    bot.polling(non_stop=True)
+    print("Bot is booting up...")
+    
+    # Infinite loop to auto-restart on crash
+    while True:
+        try:
+            bot.polling(non_stop=True, interval=0, timeout=60)
+        except Exception as e:
+            print(f"Polling error: {e}")
+            time.sleep(5) # Wait 5s before restart
